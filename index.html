@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8; /* Light gray-blue, reminiscent of naval colors */
+        }
+        .header-armada {
+            background-color: #003366; /* Dark blue, typical for naval uniforms */
+            color: #ffffff;
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 5px solid #ffcc00; /* Gold/yellow accent, like braiding */
+            position: relative; /* For absolute positioning of date */
+        }
+        .header-armada .last-updated {
+            position: absolute;
+            bottom: 0.5rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .container-armada {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .person-row {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .person-row:last-of-type { /* Use last-of-type for dynamically added rows */
+            border-bottom: none;
+        }
+        .person-name {
+            font-weight: bold;
+            color: #003366; /* Dark blue for emphasis */
+            width: 180px; /* Adjusted width for longer names */
+            flex-shrink: 0;
+        }
+        .select-group {
+            flex-grow: 1;
+        }
+        .select-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 0.375rem;
+            background-color: #ffffff;
+            color: #4a5568;
+            appearance: none; /* Remove default arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke='%234A5568' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.5em;
+            accent-color: #003366; /* Blue for the select dropdown */
+        }
+        .summary-box {
+            background-color: #e6f0f9; /* Lighter blue for summary */
+            border: 1px solid #b3d1f1;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dotted #cce0f5;
+        }
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        .summary-item span:first-child {
+            font-weight: bold;
+            color: #003366;
+        }
+        .add-person-section {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .add-person-section input {
+            flex-grow: 1;
+            padding: 0.5rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 0.375rem;
+        }
+        .button-armada {
+            background-color: #004080; /* Slightly lighter blue for buttons */
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.375rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .button-armada:hover {
+            background-color: #0056b3;
+        }
+        .remove-btn {
+            background-color: #dc3545; /* Red for remove */
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            margin-left: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center">
+    <header class="header-armada w-full">
+        <h1 class="text-3xl font-bold">Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
+        <div class="last-updated" id="last-updated"></div>
+    </header>
+
+    <div class="container-armada w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 mt-8 mb-8">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800">Estado del Personal</h2>
+
+        <form id="personnelForm">
+            </form>
+
+        <div class="add-person-section">
+            <input type="text" id="new-person-name" placeholder="Ingrese nuevo nombre de persona">
+            <button type="button" id="add-person-btn" class="button-armada">Agregar Persona</button>
+        </div>
+
+        <div class="summary-box">
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Recuento de Personal</h3>
+            <div id="summary">
+                <div class="summary-item"><span>Fuerza Efectiva:</span> <span id="effective-force-count">0</span></div>
+                <div class="summary-item"><span>A bordo:</span> <span id="abordo-count">0</span></div>
+                <div class="summary-item"><span>En trabajos:</span> <span id="trabajos-count">0</span></div>
+                <div class="summary-item"><span>En comisión:</span> <span id="comision-count">0</span></div>
+                <div class="summary-item"><span>De baja:</span> <span id="baja-count">0</span></div>
+                <div class="summary-item"><span>Con permiso:</span> <span id="permiso-count">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('personnelForm');
+            const addPersonBtn = document.getElementById('add-person-btn');
+            const newPersonNameInput = document.getElementById('new-person-name');
+            const lastUpdatedElement = document.getElementById('last-updated');
+
+            const personnelDataKey = 'personnelDataEmga2025';
+            const lastUpdatedKey = 'lastUpdatedEmga2025';
+
+            let personnel = []; // Array to store personnel objects { id, name, status }
+
+            // This is the specific order provided by the user.
+            const initialPersonnelNames = [
+                'T1 ANDRÉS VARAS',
+                'PAC RAÚL DÍAZ',
+                'SO GERMÁN CASTRO',
+                'SO JUAN MUÑOZ',
+                'S1 CARLOS ALARCÓN',
+                'S1 JORGE ESPINOZA',
+                'S1 CARLOS JIMÉNEZ',
+                'S2 GABRIEL CLAVERÍA',
+                'C1 JONATAN MORAGAtoal', // Keep 'toal' as per the last instruction
+                'C1 SAMI DONOSO',
+                'TT PEDRO VERDUGO'
+            ];
+
+            const categories = [
+                { value: 'a bordo', text: 'A bordo' },
+                { value: 'en trabajos', text: 'En trabajos' },
+                { value: 'en comisión', text: 'En comisión' },
+                { value: 'de baja', text: 'De baja' },
+                { value: 'con permiso', text: 'Con permiso' }
+            ];
+
+            // Function to generate a unique ID
+            function generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); // Shorter ID for display
+            }
+
+            // --- Local Storage Management ---
+            function savePersonnelData() {
+                localStorage.setItem(personnelDataKey, JSON.stringify(personnel));
+                updateLastUpdatedTime();
+            }
+
+            function loadPersonnelData() {
+                const storedData = localStorage.getItem(personnelDataKey);
+                if (storedData) {
+                    const loadedPersonnel = JSON.parse(storedData);
+                    // Create a map of loaded personnel by name for quick lookup
+                    const loadedPersonnelMap = new Map(loadedPersonnel.map(p => [p.name, p]));
+
+                    // Reconstruct personnel array maintaining initial order and adding new ones
+                    personnel = [];
+                    initialPersonnelNames.forEach(name => {
+                        if (loadedPersonnelMap.has(name)) {
+                            personnel.push(loadedPersonnelMap.get(name));
+                            loadedPersonnelMap.delete(name); // Remove from map once added
+                        } else {
+                            // If an initial person isn't in stored data, add them with default status
+                            personnel.push({ id: generateId(), name: name, status: '' });
+                        }
+                    });
+
+                    // Add any manually added personnel that were not in the initial list
+                    loadedPersonnelMap.forEach(p => personnel.push(p));
+
+                } else {
+                    // Default personnel if no data in local storage
+                    personnel = initialPersonnelNames.map(name => ({
+                        id: generateId(),
+                        name: name,
+                        status: ''
+                    }));
+                }
+                renderPersonnelList();
+            }
+
+            function updateLastUpdatedTime() {
+                const now = new Date();
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    timeZoneName: 'short',
+                    hour12: false // Use 24-hour format
+                };
+                // Specific for Chile's timezone (America/Santiago)
+                const formattedDate = new Intl.DateTimeFormat('es-CL', {
+                    ...options,
+                    timeZone: 'America/Santiago'
+                }).format(now);
+                lastUpdatedElement.textContent = `Última actualización: ${formattedDate}`;
+                localStorage.setItem(lastUpdatedKey, formattedDate);
+            }
+
+            function loadLastUpdatedTime() {
+                const storedTime = localStorage.getItem(lastUpdatedKey);
+                if (storedTime) {
+                    lastUpdatedElement.textContent = `Última actualización: ${storedTime}`;
+                } else {
+                    lastUpdatedElement.textContent = 'Última actualización: Nunca';
+                }
+            }
+
+            // --- Rendering and Event Handling ---
+            function createPersonRow(person) {
+                const row = document.createElement('div');
+                row.className = 'person-row';
+                row.id = `person-${person.id}`;
+
+                row.innerHTML = `
+                    <div class="person-name">${person.name}</div>
+                    <div class="select-group">
+                        <select id="status-${person.id}" name="status-${person.id}" class="person-status-select">
+                            <option value="">Seleccione estado</option>
+                            ${categories.map(cat => `<option value="${cat.value}" ${person.status === cat.value ? 'selected' : ''}>${cat.text}</option>`).join('')}
+                        </select>
+                    </div>
+                    <button type="button" class="remove-btn" data-id="${person.id}">Eliminar</button>
+                `;
+
+                // Add event listener for status change
+                const selectElement = row.querySelector(`#status-${person.id}`);
+                selectElement.addEventListener('change', (e) => {
+                    person.status = e.target.value;
+                    savePersonnelData();
+                    updateSummary();
+                });
+
+                // Add event listener for remove button
+                const removeBtn = row.querySelector('.remove-btn');
+                removeBtn.addEventListener('click', () => {
+                    removePerson(person.id);
+                });
+
+                return row;
+            }
+
+            function renderPersonnelList() {
+                form.innerHTML = ''; // Clear existing list
+                personnel.forEach(person => {
+                    form.appendChild(createPersonRow(person));
+                });
+                updateSummary();
+            }
+
+            function addPerson() {
+                const name = newPersonNameInput.value.trim();
+                if (name) {
+                    // Check if person already exists (case-insensitive)
+                    if (personnel.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                        alert('Esta persona ya existe en la lista.');
+                        return;
+                    }
+
+                    const newPerson = {
+                        id: generateId(),
+                        name: name,
+                        status: ''
+                    };
+                    personnel.push(newPerson);
+                    newPersonNameInput.value = ''; // Clear input field
+                    savePersonnelData();
+                    renderPersonnelList(); // Re-render to show new person
+                } else {
+                    alert('Por favor, ingrese un nombre para la persona.');
+                }
+            }
+
+            function removePerson(idToRemove) {
+                if (confirm('¿Está seguro de que desea eliminar a esta persona?')) {
+                    personnel = personnel.filter(person => person.id !== idToRemove);
+                    savePersonnelData();
+                    renderPersonnelList(); // Re-render to remove the person
+                }
+            }
+
+            // --- Summary Update ---
+            function updateSummary() {
+                const counts = {
+                    'effectiveForce': personnel.length, // Fuerza Efectiva is now total personnel
+                    'a bordo': 0,
+                    'en trabajos': 0,
+                    'en comisión': 0,
+                    'de baja': 0,
+                    'con permiso': 0
+                };
+
+                personnel.forEach(person => {
+                    if (categories.some(cat => cat.value === person.status)) { // Ensure category exists and is not empty
+                        counts[person.status]++;
+                    }
+                });
+
+                document.getElementById('effective-force-count').textContent = counts.effectiveForce;
+                document.getElementById('abordo-count').textContent = counts['a bordo'];
+                document.getElementById('trabajos-count').textContent = counts['en trabajos'];
+                document.getElementById('comision-count').textContent = counts['en comisión'];
+                document.getElementById('baja-count').textContent = counts['de baja'];
+                document.getElementById('permiso-count').textContent = counts['con permiso'];
+            }
+
+            // --- Initialization ---
+            loadPersonnelData(); // Load data from local storage or set defaults
+            loadLastUpdatedTime(); // Load last updated time
+
+            addPersonBtn.addEventListener('click', addPerson);
+            newPersonNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevent form submission
+                    addPerson();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
