@@ -11,6 +11,8 @@
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
         }
         .header-armada {
             background-color: #003366;
@@ -33,12 +35,39 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             margin-top: 2rem;
+            width: 95%; /* Más ancho en pantallas pequeñas */
+            max-width: 1024px; /* Límite superior para evitar que sea demasiado ancho en pantallas grandes */
+            box-sizing: border-box; /* Incluye padding y borde en el ancho total */
         }
+
+        @media (min-width: 768px) { /* md breakpoint */
+            .container-armada {
+                width: 75%;
+            }
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .container-armada {
+                width: 66%;
+            }
+        }
+        @media (min-width: 1280px) { /* xl breakpoint */
+            .container-armada {
+                width: 50%;
+            }
+        }
+
         .person-row {
             display: flex;
-            align-items: center;
+            flex-direction: column; /* Apila elementos en pantallas pequeñas */
+            align-items: flex-start; /* Alinea a la izquierda por defecto */
             padding: 0.75rem 0;
             border-bottom: 1px solid #e2e8f0;
+        }
+        @media (min-width: 640px) { /* sm breakpoint para pasar a fila */
+            .person-row {
+                flex-direction: row;
+                align-items: center;
+            }
         }
         .person-row:last-of-type {
             border-bottom: none;
@@ -46,11 +75,24 @@
         .person-name {
             font-weight: bold;
             color: #003366;
-            width: 180px;
-            flex-shrink: 0;
+            width: 100%; /* Ocupa todo el ancho en pantallas pequeñas */
+            margin-bottom: 0.5rem; /* Espacio debajo del nombre en móviles */
+        }
+        @media (min-width: 640px) {
+            .person-name {
+                width: 180px;
+                flex-shrink: 0;
+                margin-bottom: 0;
+            }
         }
         .select-group {
             flex-grow: 1;
+            width: 100%; /* Ocupa todo el ancho disponible */
+        }
+        @media (min-width: 640px) {
+            .select-group {
+                width: auto; /* Ancho automático en pantallas más grandes */
+            }
         }
         .select-group select {
             width: 100%;
@@ -79,9 +121,14 @@
         .summary-section {
             padding: 0.75rem 0;
             border-bottom: 1px dotted #cce0f5;
+            text-align: left; /* Alinea el contenido de la sección a la izquierda */
         }
         .summary-section:last-of-type {
             border-bottom: none;
+        }
+        .summary-section h4 {
+            margin-bottom: 0.75rem; /* Espacio debajo del título de la subsección */
+            text-align: center; /* Centra el título de la subsección */
         }
         .summary-item {
             display: flex;
@@ -90,18 +137,33 @@
             padding: 0.25rem 0;
         }
         .summary-item.with-dropdown {
-            align-items: flex-start; /* Alinea items con dropdown al inicio */
-            flex-wrap: wrap; /* Permite que los elementos se envuelvan si el espacio es limitado */
+            flex-direction: column; /* Apila el título y el dropdown en pantallas pequeñas */
+            align-items: flex-start; /* Alinea el contenido a la izquierda */
+        }
+        .summary-item.with-dropdown > span:first-child {
+            width: 100%; /* Ocupa todo el ancho para el título en móviles */
+            margin-bottom: 0.5rem; /* Espacio entre título y dropdown */
+        }
+        @media (min-width: 640px) {
+            .summary-item.with-dropdown {
+                flex-direction: row; /* Vuelve a fila en pantallas más grandes */
+                align-items: flex-start; /* Alinea al inicio para el dropdown */
+            }
+            .summary-item.with-dropdown > span:first-child {
+                width: auto; /* Ancho automático para el título */
+                margin-bottom: 0;
+            }
         }
         .summary-item span:first-child {
             font-weight: bold;
             color: #003366;
             margin-right: 1rem;
+            flex-shrink: 0; /* Evita que el título se encoja */
         }
         .personnel-dropdown {
             font-size: 0.75rem; /* Fuente más pequeña para los nombres en el resumen */
             color: #4a5568;
-            margin-top: 0.5rem;
+            margin-top: 0.25rem; /* Reducido para estar más cerca del título */
             padding: 0.5rem 0.25rem;
             text-align: left;
             width: 100%;
@@ -113,6 +175,7 @@
             line-height: 1.4;
             max-height: 150px; /* Altura máxima para evitar desbordamiento en pantalla */
             overflow-y: auto; /* Scroll si hay muchos nombres en pantalla */
+            flex-grow: 1; /* Permite que el dropdown crezca en ancho */
         }
         .personnel-dropdown ul {
             list-style: none;
@@ -131,14 +194,22 @@
             padding-top: 1rem;
             border-top: 1px solid #e2e8f0;
             display: flex;
+            flex-direction: column; /* Apila en pantallas pequeñas */
             gap: 1rem;
-            align-items: center;
+            align-items: stretch; /* Estira elementos para ocupar el ancho */
+        }
+        @media (min-width: 640px) {
+            .add-person-section {
+                flex-direction: row; /* Vuelve a fila en pantallas más grandes */
+                align-items: center;
+            }
         }
         .add-person-section input {
             flex-grow: 1;
             padding: 0.5rem;
             border: 1px solid #cbd5e0;
             border-radius: 0.375rem;
+            width: 100%; /* Asegura que ocupe todo el ancho disponible */
         }
         .button-armada {
             background-color: #004080;
@@ -149,6 +220,12 @@
             transition: background-color 0.2s;
             cursor: pointer;
             border: none;
+            width: 100%; /* Ocupa todo el ancho en pantallas pequeñas */
+        }
+        @media (min-width: 640px) {
+            .button-armada {
+                width: auto; /* Ancho automático en pantallas más grandes */
+            }
         }
         .button-armada:hover {
             background-color: #0056b3;
@@ -159,13 +236,19 @@
             padding: 0.3rem 0.6rem;
             border-radius: 0.25rem;
             font-size: 0.8rem;
-            margin-left: 1rem;
+            margin-left: 0; /* Sin margen a la izquierda en móviles */
+            margin-top: 0.5rem; /* Margen superior en móviles */
             cursor: pointer;
             transition: background-color 0.2s;
             border: none;
+            width: 100%; /* Ocupa todo el ancho en móviles */
         }
-        .remove-btn:hover {
-            background-color: #c82333;
+        @media (min-width: 640px) {
+            .remove-btn {
+                margin-left: 1rem; /* Margen a la izquierda en pantallas más grandes */
+                margin-top: 0;
+                width: auto; /* Ancho automático */
+            }
         }
 
         /* Estilos para el PDF y la imagen */
@@ -185,6 +268,7 @@
                 box-shadow: none; /* Eliminar sombra en el PDF */
                 margin-top: 0;
                 padding: 1rem;
+                width: 100% !important; /* Ocupa todo el ancho para imprimir */
             }
             .header-armada {
                 border-bottom: none;
@@ -195,7 +279,22 @@
                 background-color: #ffffff;
                 padding: 1rem;
             }
-            /* Asegurar que los desplegables se muestren en el PDF con su contenido completo */
+            .summary-section {
+                border-bottom: 1px dotted #cce0f5; /* Asegura el borde para todas las secciones */
+                page-break-inside: avoid; /* Evita que la sección se parta entre páginas */
+                padding-bottom: 0.5rem; /* Ajusta el padding para impresión */
+                margin-bottom: 0.5rem;
+            }
+            .summary-section:last-of-type {
+                border-bottom: none;
+            }
+            .summary-box h3, .summary-section h4 {
+                page-break-after: avoid; /* Evita que un título quede solo al final de una página */
+            }
+            .summary-item.with-dropdown {
+                flex-direction: row; /* Siempre en fila para impresión */
+                align-items: flex-start;
+            }
             .personnel-dropdown {
                 display: block !important;
                 height: auto !important; /* Permitir que el contenido empuje la altura */
@@ -203,13 +302,8 @@
                 overflow: visible !important; /* Mostrar todo el contenido */
                 background-color: #f0f4f8; /* Color de fondo ligero para diferenciar */
                 page-break-inside: avoid; /* Evita que el dropdown se parta si tiene mucho contenido */
-            }
-            .summary-section {
-                border-bottom: 1px dotted #cce0f5; /* Asegura el borde para todas las secciones */
-                page-break-inside: avoid; /* Evita que la sección se parta entre páginas */
-            }
-            .summary-box h3 {
-                page-break-after: avoid; /* Evita que un título quede solo al final de una página */
+                flex-basis: auto; /* Ajusta el ancho según el contenido */
+                margin-top: 0; /* Sin margen superior en impresión */
             }
         }
     </style>
@@ -220,7 +314,7 @@
         <div class="last-updated" id="last-updated"></div>
     </header>
 
-    <div class="container-armada w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 mt-8 mb-8" id="content-to-pdf">
+    <div class="container-armada mt-8 mb-8" id="content-to-pdf">
         <h2 class="text-2xl font-semibold mb-6 text-gray-800">Estado del Personal</h2>
 
         <form id="personnelForm" class="no-print">
@@ -546,6 +640,7 @@
                     'con permiso': 'permiso-dropdown'
                 };
 
+                // Actualizar los detalles con nombres en el segundo cuadro
                 Object.keys(dropdownMappings).forEach(category => {
                     const dropdown = document.getElementById(dropdownMappings[category]);
                     const names = personnelByCategory[category];
@@ -588,7 +683,7 @@
                 const dropdowns = document.querySelectorAll('.personnel-dropdown');
                 dropdowns.forEach(dropdown => {
                     dropdown.style.display = 'block';
-                    dropdown.style.maxHeight = 'none'; // Eliminar límite de altura
+                    dropdown.style.maxHeight = 'none'; // Eliminar límite de altura para la captura
                     dropdown.style.overflow = 'visible'; // Mostrar todo el contenido
                 });
 
@@ -609,12 +704,12 @@
                     dropdowns.forEach(dropdown => {
                         // Solo restaurar si no estaba vacío antes de la captura
                         if (dropdown.innerHTML.trim() !== '') {
-                            dropdown.style.display = 'block'; // O el display original si era diferente
+                            dropdown.style.display = 'block';
                         } else {
                             dropdown.style.display = 'none';
                         }
-                        dropdown.style.maxHeight = '150px'; // Restaurar límite de altura
-                        dropdown.style.overflowY = 'auto'; // Restaurar scroll
+                        dropdown.style.maxHeight = '150px';
+                        dropdown.style.overflowY = 'auto';
                     });
                 }).catch(error => {
                     console.error('Error al generar la imagen del resumen:', error);
