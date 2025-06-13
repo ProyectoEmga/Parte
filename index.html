@@ -128,9 +128,9 @@
             background-color: #c82333;
         }
 
-        /* Styles specifically for PDF content - will be rendered in the hidden div */
+        /* Styles specifically for PDF content */
         #pdf-render-content {
-            display: none; /* Hide this div from the main page view */
+            display: none; /* Keep hidden on the main page */
             width: 210mm; /* A4 width */
             min-height: 297mm; /* A4 height */
             padding: 20mm;
@@ -180,7 +180,9 @@
             font-size: 14px;
             border-bottom: 1px dotted #eee;
         }
-        #pdf-render-content .pdf-summary-item:nth-last-child(-n + 2) {
+        /* Adjusted to prevent extra border on last two items in a two-column grid */
+        #pdf-render-content .pdf-summary-item:nth-last-child(1),
+        #pdf-render-content .pdf-summary-item:nth-last-child(2) {
             border-bottom: none;
         }
         #pdf-render-content .pdf-summary-item span:first-child {
@@ -260,7 +262,7 @@
             const newPersonNameInput = document.getElementById('new-person-name');
             const lastUpdatedElement = document.getElementById('last-updated');
             const generatePdfBtn = document.getElementById('generate-pdf-btn');
-            const pdfRenderContentDiv = document.getElementById('pdf-render-content'); // Get the hidden div
+            const pdfRenderContentDiv = document.getElementById('pdf-render-content'); // Reference to the hidden div
 
             const personnelDataKey = 'personnelDataEmga2025';
             const lastUpdatedKey = 'lastUpdatedEmga2025';
@@ -315,7 +317,12 @@
                         }
                     });
 
-                    loadedPersonnelMap.forEach(p => personnel.push(p));
+                    // Add any manually added personnel that were not in the initial list, maintaining their order
+                    loadedPersonnel.forEach(p => {
+                        if (!initialPersonnelNames.includes(p.name) && !personnel.some(ep => ep.name === p.name)) {
+                            personnel.push(p);
+                        }
+                    });
 
                 } else {
                     personnel = initialPersonnelNames.map(name => ({
@@ -466,8 +473,8 @@
                 };
                 const formattedDate = new Intl.DateTimeFormat('es-CL', options).format(currentDateTime);
 
-                // --- Build PDF content in the hidden div ---
-                let pdfHtml = `
+                // Build PDF content as a single HTML string
+                let pdfContentHtml = `
                     <div class="pdf-header">
                         <h1>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
                         <p>Fecha de Generación: ${formattedDate}</p>
@@ -485,22 +492,25 @@
                     'Con permiso': 0
                 };
                 personnel.forEach(person => {
-                    if (categories.some(cat => cat.value === person.status)) {
-                        const categoryName = categories.find(cat => cat.value === person.status).text;
-                        summaryCounts[categoryName]++;
+                    // Find the category text for the current person's status
+                    const categoryText = categories.find(cat => cat.value === person.status)?.text;
+                    if (categoryText && summaryCounts.hasOwnProperty(categoryText)) {
+                        summaryCounts[categoryText]++;
+                    } else if (person.status === '' || person.status === undefined) {
+                        // Handle unassigned status if needed in summary, or just ignore for counts
                     }
                 });
 
-                pdfHtml += `<h2 class="pdf-section-title">Recuento de Personal</h2>`;
-                pdfHtml += `<div class="pdf-summary-grid">`;
+                pdfContentHtml += `<h2 class="pdf-section-title">Recuento de Personal</h2>`;
+                pdfContentHtml += `<div class="pdf-summary-grid">`;
                 for (const [key, value] of Object.entries(summaryCounts)) {
-                    pdfHtml += `<div class="pdf-summary-item"><span>${key}:</span> <span>${value}</span></div>`;
+                    pdfContentHtml += `<div class="pdf-summary-item"><span>${key}:</span> <span>${value}</span></div>`;
                 }
-                pdfHtml += `</div>`;
+                pdfContentHtml += `</div>`;
 
                 // Add Detail Section
-                pdfHtml += `<h2 class="pdf-section-title">Detalle del Personal</h2>`;
-                pdfHtml += `<ul class="pdf-personnel-list">`;
+                pdfContentHtml += `<h2 class="pdf-section-title">Detalle del Personal</h2>`;
+                pdfContentHtml += `<ul class="pdf-personnel-list">`;
                 const sortedPersonnel = [...personnel].sort((a, b) => {
                     const statusOrder = categories.map(c => c.value);
                     const statusA = statusOrder.indexOf(a.status);
@@ -513,12 +523,12 @@
                 });
                 sortedPersonnel.forEach(person => {
                     const statusText = categories.find(cat => cat.value === person.status)?.text || 'Sin asignar';
-                    pdfHtml += `<li><span class="person-name-pdf">${person.name}</span> <span class="person-status-pdf">${statusText}</span></li>`;
+                    pdfContentHtml += `<li><span class="person-name-pdf">${person.name}</span> <span class="person-status-pdf">${statusText}</span></li>`;
                 });
-                pdfHtml += `</ul>`;
+                pdfContentHtml += `</ul>`;
 
-                // Set the innerHTML of the hidden div
-                pdfRenderContentDiv.innerHTML = pdfHtml;
+                // Insert the generated HTML into the hidden div
+                pdfRenderContentDiv.innerHTML = pdfContentHtml;
 
                 // PDF Options
                 const pdfOptions = {
@@ -529,7 +539,7 @@
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
-                // Use html2pdf with the hidden div as the source
+                // Trigger PDF generation from the hidden div
                 html2pdf().from(pdfRenderContentDiv).set(pdfOptions).save();
             });
 
