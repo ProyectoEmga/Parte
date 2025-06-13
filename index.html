@@ -9,15 +9,15 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f0f4f8; /* Light gray-blue, reminiscent of naval colors */
+            background-color: #f0f4f8;
         }
         .header-armada {
-            background-color: #003366; /* Dark blue, typical for naval uniforms */
+            background-color: #003366;
             color: #ffffff;
             padding: 1.5rem;
             text-align: center;
-            border-bottom: 5px solid #ffcc00; /* Gold/yellow accent, like braiding */
-            position: relative; /* For absolute positioning of date */
+            border-bottom: 5px solid #ffcc00;
+            position: relative;
         }
         .header-armada .last-updated {
             position: absolute;
@@ -110,6 +110,7 @@
             font-weight: bold;
             transition: background-color 0.2s;
             cursor: pointer;
+            border: none;
         }
         .button-armada:hover {
             background-color: #0056b3;
@@ -123,99 +124,91 @@
             margin-left: 1rem;
             cursor: pointer;
             transition: background-color 0.2s;
+            border: none;
         }
         .remove-btn:hover {
             background-color: #c82333;
         }
 
-        /* Styles specifically for PDF content */
-        #pdf-render-content {
-            display: none; /* Keep hidden on the main page */
-            width: 210mm; /* A4 width */
-            min-height: 297mm; /* A4 height */
-            padding: 20mm;
-            box-sizing: border-box;
+        /* PDF styles - solo para cuando se renderiza como PDF */
+        .pdf-content {
             font-family: 'Arial', sans-serif;
             color: #333;
             background-color: #fff;
+            padding: 20px;
+            line-height: 1.4;
         }
-        #pdf-render-content .pdf-header {
+        .pdf-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 15px;
         }
-        #pdf-render-content .pdf-header h1 {
-            font-size: 26px; /* Larger for PDF title */
+        .pdf-header h1 {
+            font-size: 24px;
             color: #003366;
-            margin-bottom: 8px;
+            margin: 0 0 10px 0;
             font-weight: bold;
         }
-        #pdf-render-content .pdf-header p {
-            font-size: 13px;
-            color: #555;
+        .pdf-header p {
+            font-size: 12px;
+            color: #666;
+            margin: 5px 0;
         }
-        #pdf-render-content .pdf-section-title {
-            font-size: 20px; /* Larger for section titles */
+        .pdf-section-title {
+            font-size: 18px;
             color: #003366;
-            margin-top: 25px;
-            margin-bottom: 15px;
-            text-align: center;
+            margin: 25px 0 15px 0;
             font-weight: bold;
             border-bottom: 2px solid #ddd;
             padding-bottom: 5px;
         }
-        #pdf-render-content .pdf-summary-grid {
+        .pdf-summary-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Two columns for summary items */
-            gap: 10px 20px; /* Row and column gap */
-            margin-bottom: 30px;
-            border: 1px solid #e0e0e0;
-            padding: 15px 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px 20px;
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            padding: 15px;
             background-color: #f9f9f9;
             border-radius: 5px;
         }
-        #pdf-render-content .pdf-summary-item {
+        .pdf-summary-item {
             display: flex;
             justify-content: space-between;
-            padding: 5px 0;
-            font-size: 14px;
-            border-bottom: 1px dotted #eee;
+            padding: 4px 0;
+            font-size: 13px;
         }
-        /* Adjusted to prevent extra border on last two items in a two-column grid */
-        #pdf-render-content .pdf-summary-item:nth-last-child(1),
-        #pdf-render-content .pdf-summary-item:nth-last-child(2) {
-            border-bottom: none;
-        }
-        #pdf-render-content .pdf-summary-item span:first-child {
+        .pdf-summary-item span:first-child {
             font-weight: bold;
             color: #004080;
         }
-        #pdf-render-content .pdf-personnel-list {
+        .pdf-personnel-list {
             list-style: none;
             padding: 0;
             margin: 0;
         }
-        #pdf-render-content .pdf-personnel-list li {
-            padding: 10px 0;
+        .pdf-personnel-list li {
+            padding: 8px 0;
             border-bottom: 1px solid #eee;
-            font-size: 14px;
-            line-height: 1.4;
+            font-size: 13px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        #pdf-render-content .pdf-personnel-list li:last-child {
+        .pdf-personnel-list li:last-child {
             border-bottom: none;
         }
-        #pdf-render-content .pdf-personnel-list .person-name-pdf {
+        .pdf-personnel-list .person-name-pdf {
             font-weight: bold;
             color: #333;
             flex-grow: 1;
         }
-        #pdf-render-content .pdf-personnel-list .person-status-pdf {
-            font-weight: normal;
+        .pdf-personnel-list .person-status-pdf {
             color: #004080;
-            text-align: right;
+            font-weight: normal;
             width: 120px;
+            text-align: right;
         }
     </style>
 </head>
@@ -229,7 +222,7 @@
         <h2 class="text-2xl font-semibold mb-6 text-gray-800">Estado del Personal</h2>
 
         <form id="personnelForm">
-            </form>
+        </form>
 
         <div class="add-person-section">
             <input type="text" id="new-person-name" placeholder="Ingrese nuevo nombre de persona">
@@ -253,8 +246,6 @@
         </div>
     </div>
 
-    <div id="pdf-render-content"></div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('personnelForm');
@@ -262,7 +253,6 @@
             const newPersonNameInput = document.getElementById('new-person-name');
             const lastUpdatedElement = document.getElementById('last-updated');
             const generatePdfBtn = document.getElementById('generate-pdf-btn');
-            const pdfRenderContentDiv = document.getElementById('pdf-render-content'); // Reference to the hidden div
 
             const personnelDataKey = 'personnelDataEmga2025';
             const lastUpdatedKey = 'lastUpdatedEmga2025';
@@ -278,7 +268,7 @@
                 'S1 JORGE ESPINOZA',
                 'S1 CARLOS JIMÉNEZ',
                 'S2 GABRIEL CLAVERÍA',
-                'C1 JONATAN MORAGAtoal',
+                'C1 JONATAN MORAGA',
                 'C1 SAMI DONOSO',
                 'TT PEDRO VERDUGO'
             ];
@@ -297,34 +287,45 @@
             }
 
             function savePersonnelData() {
-                localStorage.setItem(personnelDataKey, JSON.stringify(personnel));
-                updateLastUpdatedTime();
+                try {
+                    localStorage.setItem(personnelDataKey, JSON.stringify(personnel));
+                    updateLastUpdatedTime();
+                } catch (error) {
+                    console.warn('No se pudo guardar en localStorage:', error);
+                }
             }
 
             function loadPersonnelData() {
-                const storedData = localStorage.getItem(personnelDataKey);
-                if (storedData) {
-                    const loadedPersonnel = JSON.parse(storedData);
-                    const loadedPersonnelMap = new Map(loadedPersonnel.map(p => [p.name, p]));
+                try {
+                    const storedData = localStorage.getItem(personnelDataKey);
+                    if (storedData) {
+                        const loadedPersonnel = JSON.parse(storedData);
+                        const loadedPersonnelMap = new Map(loadedPersonnel.map(p => [p.name, p]));
 
-                    personnel = [];
-                    initialPersonnelNames.forEach(name => {
-                        if (loadedPersonnelMap.has(name)) {
-                            personnel.push(loadedPersonnelMap.get(name));
-                            loadedPersonnelMap.delete(name);
-                        } else {
-                            personnel.push({ id: generateId(), name: name, status: '' });
-                        }
-                    });
+                        personnel = [];
+                        initialPersonnelNames.forEach(name => {
+                            if (loadedPersonnelMap.has(name)) {
+                                personnel.push(loadedPersonnelMap.get(name));
+                                loadedPersonnelMap.delete(name);
+                            } else {
+                                personnel.push({ id: generateId(), name: name, status: '' });
+                            }
+                        });
 
-                    // Add any manually added personnel that were not in the initial list, maintaining their order
-                    loadedPersonnel.forEach(p => {
-                        if (!initialPersonnelNames.includes(p.name) && !personnel.some(ep => ep.name === p.name)) {
-                            personnel.push(p);
-                        }
-                    });
-
-                } else {
+                        loadedPersonnel.forEach(p => {
+                            if (!initialPersonnelNames.includes(p.name) && !personnel.some(ep => ep.name === p.name)) {
+                                personnel.push(p);
+                            }
+                        });
+                    } else {
+                        personnel = initialPersonnelNames.map(name => ({
+                            id: generateId(),
+                            name: name,
+                            status: ''
+                        }));
+                    }
+                } catch (error) {
+                    console.warn('Error al cargar datos:', error);
                     personnel = initialPersonnelNames.map(name => ({
                         id: generateId(),
                         name: name,
@@ -346,19 +347,29 @@
                     timeZoneName: 'short',
                     hour12: false
                 };
-                const formattedDate = new Intl.DateTimeFormat('es-CL', {
-                    ...options,
-                    timeZone: 'America/Santiago'
-                }).format(now);
-                lastUpdatedElement.textContent = `Última actualización: ${formattedDate}`;
-                localStorage.setItem(lastUpdatedKey, formattedDate);
+                try {
+                    const formattedDate = new Intl.DateTimeFormat('es-CL', {
+                        ...options,
+                        timeZone: 'America/Santiago'
+                    }).format(now);
+                    lastUpdatedElement.textContent = `Última actualización: ${formattedDate}`;
+                    localStorage.setItem(lastUpdatedKey, formattedDate);
+                } catch (error) {
+                    console.warn('Error al actualizar tiempo:', error);
+                    lastUpdatedElement.textContent = `Última actualización: ${now.toLocaleString()}`;
+                }
             }
 
             function loadLastUpdatedTime() {
-                const storedTime = localStorage.getItem(lastUpdatedKey);
-                if (storedTime) {
-                    lastUpdatedElement.textContent = `Última actualización: ${storedTime}`;
-                } else {
+                try {
+                    const storedTime = localStorage.getItem(lastUpdatedKey);
+                    if (storedTime) {
+                        lastUpdatedElement.textContent = `Última actualización: ${storedTime}`;
+                    } else {
+                        lastUpdatedElement.textContent = 'Última actualización: Nunca';
+                    }
+                } catch (error) {
+                    console.warn('Error al cargar tiempo:', error);
                     lastUpdatedElement.textContent = 'Última actualización: Nunca';
                 }
             }
@@ -432,7 +443,6 @@
                 }
             }
 
-            // --- Summary Update (for displayed HTML) ---
             function updateSummary() {
                 const counts = {
                     'effectiveForce': personnel.length,
@@ -459,8 +469,11 @@
                 document.getElementById('permiso-count').textContent = counts['con permiso'];
             }
 
-            // --- PDF Generation ---
-            generatePdfBtn.addEventListener('click', () => {
+            function generatePDF() {
+                // Mostrar mensaje de generación
+                generatePdfBtn.textContent = 'Generando PDF...';
+                generatePdfBtn.disabled = true;
+
                 const currentDateTime = new Date();
                 const options = {
                     year: 'numeric',
@@ -473,15 +486,7 @@
                 };
                 const formattedDate = new Intl.DateTimeFormat('es-CL', options).format(currentDateTime);
 
-                // Build PDF content as a single HTML string
-                let pdfContentHtml = `
-                    <div class="pdf-header">
-                        <h1>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
-                        <p>Fecha de Generación: ${formattedDate}</p>
-                    </div>
-                `;
-
-                // Add Summary Section
+                // Calcular estadísticas
                 const summaryCounts = {
                     'Fuerza Efectiva': personnel.length,
                     'Alto mando': 0,
@@ -491,16 +496,34 @@
                     'De baja': 0,
                     'Con permiso': 0
                 };
+
                 personnel.forEach(person => {
-                    // Find the category text for the current person's status
                     const categoryText = categories.find(cat => cat.value === person.status)?.text;
                     if (categoryText && summaryCounts.hasOwnProperty(categoryText)) {
                         summaryCounts[categoryText]++;
-                    } else if (person.status === '' || person.status === undefined) {
-                        // Handle unassigned status if needed in summary, or just ignore for counts
                     }
                 });
 
+                // Crear elemento temporal para PDF
+                const pdfElement = document.createElement('div');
+                pdfElement.className = 'pdf-content';
+                pdfElement.style.width = '210mm';
+                pdfElement.style.minHeight = '297mm';
+                pdfElement.style.backgroundColor = 'white';
+                pdfElement.style.position = 'absolute';
+                pdfElement.style.top = '-10000px';
+                pdfElement.style.left = '-10000px';
+
+                // Construir contenido del PDF
+                let pdfContentHtml = `
+                    <div class="pdf-header">
+                        <h1>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
+                        <p>Fecha de Generación: ${formattedDate}</p>
+                        <p>Escuela de Grumetes Alejandro Navarrete Cisterna</p>
+                    </div>
+                `;
+
+                // Sección de resumen
                 pdfContentHtml += `<h2 class="pdf-section-title">Recuento de Personal</h2>`;
                 pdfContentHtml += `<div class="pdf-summary-grid">`;
                 for (const [key, value] of Object.entries(summaryCounts)) {
@@ -508,9 +531,10 @@
                 }
                 pdfContentHtml += `</div>`;
 
-                // Add Detail Section
+                // Sección de detalle
                 pdfContentHtml += `<h2 class="pdf-section-title">Detalle del Personal</h2>`;
                 pdfContentHtml += `<ul class="pdf-personnel-list">`;
+                
                 const sortedPersonnel = [...personnel].sort((a, b) => {
                     const statusOrder = categories.map(c => c.value);
                     const statusA = statusOrder.indexOf(a.status);
@@ -521,32 +545,54 @@
                     }
                     return a.name.localeCompare(b.name);
                 });
+
                 sortedPersonnel.forEach(person => {
                     const statusText = categories.find(cat => cat.value === person.status)?.text || 'Sin asignar';
                     pdfContentHtml += `<li><span class="person-name-pdf">${person.name}</span> <span class="person-status-pdf">${statusText}</span></li>`;
                 });
                 pdfContentHtml += `</ul>`;
 
-                // Insert the generated HTML into the hidden div
-                pdfRenderContentDiv.innerHTML = pdfContentHtml;
+                pdfElement.innerHTML = pdfContentHtml;
+                document.body.appendChild(pdfElement);
 
-                // PDF Options
+                // Configuración del PDF
                 const pdfOptions = {
-                    margin: 10,
+                    margin: [10, 10, 10, 10],
                     filename: `Parte_Dpto_Finanzas_EMGA_2025_${currentDateTime.getFullYear()}${(currentDateTime.getMonth()+1).toString().padStart(2, '0')}${currentDateTime.getDate().toString().padStart(2, '0')}_${currentDateTime.getHours().toString().padStart(2, '0')}${currentDateTime.getMinutes().toString().padStart(2, '0')}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 3, logging: true, dpi: 300, letterRendering: true, useCORS: true },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    image: { type: 'jpeg', quality: 0.95 },
+                    html2canvas: { 
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff',
+                        width: 794,
+                        height: 1123
+                    },
+                    jsPDF: { 
+                        unit: 'mm', 
+                        format: 'a4', 
+                        orientation: 'portrait',
+                        compress: true
+                    }
                 };
 
-                // Trigger PDF generation from the hidden div
-                html2pdf().from(pdfRenderContentDiv).set(pdfOptions).save();
-            });
+                // Generar PDF
+                html2pdf().from(pdfElement).set(pdfOptions).save().then(() => {
+                    // Limpiar
+                    document.body.removeChild(pdfElement);
+                    generatePdfBtn.textContent = 'Generar PDF del Parte';
+                    generatePdfBtn.disabled = false;
+                }).catch((error) => {
+                    console.error('Error al generar PDF:', error);
+                    alert('Error al generar el PDF. Por favor, intente nuevamente.');
+                    document.body.removeChild(pdfElement);
+                    generatePdfBtn.textContent = 'Generar PDF del Parte';
+                    generatePdfBtn.disabled = false;
+                });
+            }
 
-            // --- Initialization ---
-            loadPersonnelData();
-            loadLastUpdatedTime();
-
+            // Event listeners
+            generatePdfBtn.addEventListener('click', generatePDF);
             addPersonBtn.addEventListener('click', addPerson);
             newPersonNameInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
@@ -554,6 +600,10 @@
                     addPerson();
                 }
             });
+
+            // Inicialización
+            loadPersonnelData();
+            loadLastUpdatedTime();
         });
     </script>
 </body>
