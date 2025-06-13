@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
@@ -251,76 +250,25 @@
             }
         }
 
-        /* Estilos para el PDF y la imagen */
-        .no-print {
-            /* Por defecto, estos elementos no se imprimen ni se capturan en la imagen */
-            /* En el JS se controlará su visibilidad temporalmente para la captura/PDF */
-        }
-
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            body {
-                background-color: #ffffff; /* Fondo blanco para el PDF */
-            }
-            .container-armada {
-                box-shadow: none; /* Eliminar sombra en el PDF */
-                margin-top: 0;
-                padding: 1rem;
-                width: 100% !important; /* Ocupa todo el ancho para imprimir */
-            }
-            .header-armada {
-                border-bottom: none;
-                padding: 1rem;
-            }
-            .summary-box {
-                border: none;
-                background-color: #ffffff;
-                padding: 1rem;
-            }
-            .summary-section {
-                border-bottom: 1px dotted #cce0f5; /* Asegura el borde para todas las secciones */
-                page-break-inside: avoid; /* Evita que la sección se parta entre páginas */
-                padding-bottom: 0.5rem; /* Ajusta el padding para impresión */
-                margin-bottom: 0.5rem;
-            }
-            .summary-section:last-of-type {
-                border-bottom: none;
-            }
-            .summary-box h3, .summary-section h4 {
-                page-break-after: avoid; /* Evita que un título quede solo al final de una página */
-            }
-            .summary-item.with-dropdown {
-                flex-direction: row; /* Siempre en fila para impresión */
-                align-items: flex-start;
-            }
-            .personnel-dropdown {
-                display: block !important;
-                height: auto !important; /* Permitir que el contenido empuje la altura */
-                max-height: none !important; /* Sin límite de altura en el PDF */
-                overflow: visible !important; /* Mostrar todo el contenido */
-                background-color: #f0f4f8; /* Color de fondo ligero para diferenciar */
-                page-break-inside: avoid; /* Evita que el dropdown se parta si tiene mucho contenido */
-                flex-basis: auto; /* Ajusta el ancho según el contenido */
-                margin-top: 0; /* Sin margen superior en impresión */
-            }
+        /* Estilos específicos para la captura de imagen del resumen */
+        .no-capture {
+            display: none !important;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
-    <header class="header-armada w-full no-print">
+    <header class="header-armada w-full">
         <h1 class="text-3xl font-bold">Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
         <div class="last-updated" id="last-updated"></div>
     </header>
 
-    <div class="container-armada mt-8 mb-8" id="content-to-pdf">
+    <div class="container-armada mt-8 mb-8">
         <h2 class="text-2xl font-semibold mb-6 text-gray-800">Estado del Personal</h2>
 
-        <form id="personnelForm" class="no-print">
+        <form id="personnelForm">
         </form>
 
-        <div class="add-person-section no-print">
+        <div class="add-person-section">
             <input type="text" id="new-person-name" placeholder="Ingrese nuevo nombre de persona">
             <button type="button" id="add-person-btn" class="button-armada">Agregar Persona</button>
         </div>
@@ -388,8 +336,7 @@
                 </div>
             </div>
         </div>
-        <button type="button" id="generate-pdf-btn" class="button-armada mt-6 w-full no-print">Generar PDF</button>
-        <button type="button" id="download-summary-btn" class="button-armada mt-2 w-full no-print bg-green-600 hover:bg-green-700">Descargar Resumen como Imagen</button>
+        <button type="button" id="download-summary-btn" class="button-armada mt-6 w-full bg-green-600 hover:bg-green-700">Descargar Resumen como Imagen</button>
     </div>
 
     <script>
@@ -398,9 +345,7 @@
             const addPersonBtn = document.getElementById('add-person-btn');
             const newPersonNameInput = document.getElementById('new-person-name');
             const lastUpdatedElement = document.getElementById('last-updated');
-            const generatePdfBtn = document.getElementById('generate-pdf-btn');
             const downloadSummaryBtn = document.getElementById('download-summary-btn');
-            const contentToPdf = document.getElementById('content-to-pdf');
             const summaryBoxToCapture = document.getElementById('summary-box-to-capture');
 
             const personnelDataKey = 'personnelDataEmga2025';
@@ -655,29 +600,10 @@
                 });
             }
 
-            function generatePDF() {
-                const options = {
-                    margin: 10,
-                    filename: `Parte_Finanzas_Abastecimiento_EMGA_${new Date().getFullYear()}_${new Date().toLocaleDateString('es-CL').replace(/\//g, '-')}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true, useCORS: true },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-
-                // Ocultar elementos no deseados para el PDF
-                const noPrintElements = document.querySelectorAll('.no-print');
-                noPrintElements.forEach(el => el.style.display = 'none');
-
-                html2pdf().from(contentToPdf).set(options).save().then(() => {
-                    // Restaurar la visibilidad de los elementos después de la generación
-                    noPrintElements.forEach(el => el.style.display = '');
-                });
-            }
-
             function downloadSummaryAsImage() {
                 // Ocultar los elementos de control que no deben aparecer en la imagen
-                const noPrintElements = document.querySelectorAll('.no-print');
-                noPrintElements.forEach(el => el.style.display = 'none');
+                const elementsToHideForCapture = document.querySelectorAll('.no-capture');
+                elementsToHideForCapture.forEach(el => el.style.display = 'none');
 
                 // Asegurarse de que todos los dropdowns estén visibles antes de la captura
                 const dropdowns = document.querySelectorAll('.personnel-dropdown');
@@ -688,8 +614,8 @@
                 });
 
                 html2canvas(summaryBoxToCapture, {
-                    scale: 2,
-                    logging: true,
+                    scale: 2, // Aumentar la escala para mayor resolución
+                    logging: false, // Desactivar logs en consola
                     useCORS: true
                 }).then(canvas => {
                     const link = document.createElement('a');
@@ -700,7 +626,7 @@
                     document.body.removeChild(link);
 
                     // Restaurar la visibilidad y propiedades de los elementos
-                    noPrintElements.forEach(el => el.style.display = '');
+                    elementsToHideForCapture.forEach(el => el.style.display = ''); // Restaurar a su estado original
                     dropdowns.forEach(dropdown => {
                         // Solo restaurar si no estaba vacío antes de la captura
                         if (dropdown.innerHTML.trim() !== '') {
@@ -715,7 +641,8 @@
                     console.error('Error al generar la imagen del resumen:', error);
                     alert('Hubo un error al generar la imagen del resumen.');
                     // Asegurarse de restaurar la visibilidad incluso en caso de error
-                    noPrintElements.forEach(el => el.style.display = '');
+                    const elementsToHideForCapture = document.querySelectorAll('.no-capture');
+                    elementsToHideForCapture.forEach(el => el.style.display = '');
                     const dropdowns = document.querySelectorAll('.personnel-dropdown');
                     dropdowns.forEach(dropdown => {
                         if (dropdown.innerHTML.trim() !== '') {
@@ -737,7 +664,6 @@
                     addPerson();
                 }
             });
-            generatePdfBtn.addEventListener('click', generatePDF);
             downloadSummaryBtn.addEventListener('click', downloadSummaryAsImage);
 
             // Inicialización
