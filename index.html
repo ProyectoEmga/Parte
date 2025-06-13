@@ -6,6 +6,7 @@
     <title>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -80,6 +81,8 @@
             justify-content: space-between;
             padding: 0.5rem 0;
             border-bottom: 1px dotted #cce0f5;
+            flex-wrap: wrap; /* Permite que los elementos se envuelvan si el espacio es limitado */
+            align-items: flex-start; /* Alinea los ítems al inicio para el dropdown */
         }
         .summary-item:last-child {
             border-bottom: none;
@@ -87,6 +90,39 @@
         .summary-item span:first-child {
             font-weight: bold;
             color: #003366;
+            margin-right: 1rem; /* Espacio entre el título y el contador */
+            flex-basis: auto; /* Permite que el span ocupe el ancho necesario */
+        }
+        .summary-item span:nth-child(2) {
+            flex-shrink: 0; /* Evita que el contador se encoja */
+        }
+        .personnel-dropdown {
+            font-size: 0.75rem; /* Fuente más pequeña para los nombres en el resumen */
+            color: #4a5568; /* Color más oscuro para los nombres */
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.25rem; /* Aumentado el padding */
+            text-align: left;
+            width: 100%; /* Ocupa todo el ancho disponible */
+            box-sizing: border-box; /* Incluye padding y borde en el ancho */
+            background-color: #f9fbfd; /* Ligero color de fondo para el desplegable */
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            display: none; /* Se mantiene oculto por defecto */
+            line-height: 1.4; /* Espaciado entre líneas */
+            max-height: 150px; /* Altura máxima para evitar desbordamiento */
+            overflow-y: auto; /* Scroll si hay muchos nombres */
+        }
+        .personnel-dropdown ul {
+            list-style: none; /* Elimina viñetas de la lista */
+            padding: 0;
+            margin: 0;
+        }
+        .personnel-dropdown li {
+            padding: 0.1rem 0; /* Menos padding para items de lista */
+        }
+
+        .personnel-dropdown:empty {
+            display: none;
         }
         .add-person-section {
             margin-top: 2rem;
@@ -130,120 +166,102 @@
             background-color: #c82333;
         }
 
-        /* PDF styles - solo para cuando se renderiza como PDF */
-        .pdf-content {
-            font-family: 'Arial', sans-serif;
-            color: #333;
-            background-color: #fff;
-            padding: 20px;
-            line-height: 1.4;
+        /* Estilos para el PDF y la imagen */
+        .no-print {
+            /* Por defecto, estos elementos no se imprimen ni se capturan en la imagen */
+            /* En el JS se controlará su visibilidad temporalmente para la captura/PDF */
         }
-        .pdf-header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #003366;
-            padding-bottom: 15px;
-        }
-        .pdf-header h1 {
-            font-size: 24px;
-            color: #003366;
-            margin: 0 0 10px 0;
-            font-weight: bold;
-        }
-        .pdf-header p {
-            font-size: 12px;
-            color: #666;
-            margin: 5px 0;
-        }
-        .pdf-section-title {
-            font-size: 18px;
-            color: #003366;
-            margin: 25px 0 15px 0;
-            font-weight: bold;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 5px;
-        }
-        .pdf-summary-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px 20px;
-            margin-bottom: 25px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-        .pdf-summary-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 0;
-            font-size: 13px;
-        }
-        .pdf-summary-item span:first-child {
-            font-weight: bold;
-            color: #004080;
-        }
-        .pdf-personnel-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .pdf-personnel-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 13px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .pdf-personnel-list li:last-child {
-            border-bottom: none;
-        }
-        .pdf-personnel-list .person-name-pdf {
-            font-weight: bold;
-            color: #333;
-            flex-grow: 1;
-        }
-        .pdf-personnel-list .person-status-pdf {
-            color: #004080;
-            font-weight: normal;
-            width: 120px;
-            text-align: right;
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: #ffffff; /* Fondo blanco para el PDF */
+            }
+            .container-armada {
+                box-shadow: none; /* Eliminar sombra en el PDF */
+                margin-top: 0;
+                padding: 1rem;
+            }
+            .header-armada {
+                border-bottom: none;
+                padding: 1rem;
+            }
+            .summary-box {
+                border: none;
+                background-color: #ffffff;
+                padding: 1rem;
+            }
+            /* Asegurar que los desplegables se muestren en el PDF con su contenido completo */
+            .personnel-dropdown {
+                display: block !important;
+                height: auto !important; /* Permitir que el contenido empuje la altura */
+                max-height: none !important; /* Sin límite de altura en el PDF */
+                overflow: visible !important; /* Mostrar todo el contenido */
+                background-color: #f0f4f8; /* Color de fondo ligero para diferenciar */
+            }
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
-    <header class="header-armada w-full">
+    <header class="header-armada w-full no-print">
         <h1 class="text-3xl font-bold">Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
         <div class="last-updated" id="last-updated"></div>
     </header>
 
-    <div class="container-armada w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 mt-8 mb-8">
+    <div class="container-armada w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 mt-8 mb-8" id="content-to-pdf">
         <h2 class="text-2xl font-semibold mb-6 text-gray-800">Estado del Personal</h2>
 
-        <form id="personnelForm">
+        <form id="personnelForm" class="no-print">
         </form>
 
-        <div class="add-person-section">
+        <div class="add-person-section no-print">
             <input type="text" id="new-person-name" placeholder="Ingrese nuevo nombre de persona">
             <button type="button" id="add-person-btn" class="button-armada">Agregar Persona</button>
         </div>
 
-        <div class="summary-box">
+        <div class="summary-box" id="summary-box-to-capture">
             <h3 class="text-xl font-semibold mb-4 text-gray-800">Recuento de Personal</h3>
             <div id="summary-display">
-                <div class="summary-item"><span>Fuerza Efectiva:</span> <span id="effective-force-count">0</span></div>
-                <div class="summary-item"><span>Alto mando:</span> <span id="altomando-count">0</span></div>
-                <div class="summary-item"><span>A bordo:</span> <span id="abordo-count">0</span></div>
-                <div class="summary-item"><span>En trabajos:</span> <span id="trabajos-count">0</span></div>
-                <div class="summary-item"><span>En comisión:</span> <span id="comision-count">0</span></div>
-                <div class="summary-item"><span>De baja:</span> <span id="baja-count">0</span></div>
-                <div class="summary-item"><span>Con permiso:</span> <span id="permiso-count">0</span></div>
+                <div class="summary-item">
+                    <span>Fuerza Efectiva:</span>
+                    <span id="effective-force-count">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Alto mando:</span>
+                    <span id="altomando-count">0</span>
+                    <div class="personnel-dropdown" id="altomando-dropdown"></div>
+                </div>
+                <div class="summary-item">
+                    <span>A bordo:</span>
+                    <span id="abordo-count">0</span>
+                    <div class="personnel-dropdown" id="abordo-dropdown"></div>
+                </div>
+                <div class="summary-item">
+                    <span>En trabajos:</span>
+                    <span id="trabajos-count">0</span>
+                    <div class="personnel-dropdown" id="trabajos-dropdown"></div>
+                </div>
+                <div class="summary-item">
+                    <span>En comisión:</span>
+                    <span id="comision-count">0</span>
+                    <div class="personnel-dropdown" id="comision-dropdown"></div>
+                </div>
+                <div class="summary-item">
+                    <span>De baja:</span>
+                    <span id="baja-count">0</span>
+                    <div class="personnel-dropdown" id="baja-dropdown"></div>
+                </div>
+                <div class="summary-item">
+                    <span>Con permiso:</span>
+                    <span id="permiso-count">0</span>
+                    <div class="personnel-dropdown" id="permiso-dropdown"></div>
+                </div>
             </div>
         </div>
-        <div class="text-center mt-6">
-            <button type="button" id="generate-pdf-btn" class="button-armada">Generar PDF del Parte</button>
-        </div>
+        <button type="button" id="generate-pdf-btn" class="button-armada mt-6 w-full no-print">Generar PDF</button>
+        <button type="button" id="download-summary-btn" class="button-armada mt-2 w-full no-print bg-green-600 hover:bg-green-700">Descargar Resumen como Imagen</button>
     </div>
 
     <script>
@@ -253,21 +271,28 @@
             const newPersonNameInput = document.getElementById('new-person-name');
             const lastUpdatedElement = document.getElementById('last-updated');
             const generatePdfBtn = document.getElementById('generate-pdf-btn');
+            const downloadSummaryBtn = document.getElementById('download-summary-btn'); // Nuevo botón de imagen
+            const contentToPdf = document.getElementById('content-to-pdf');
+            const summaryBoxToCapture = document.getElementById('summary-box-to-capture'); // El div del resumen
 
             const personnelDataKey = 'personnelDataEmga2025';
             const lastUpdatedKey = 'lastUpdatedEmga2025';
 
             let personnel = [];
 
+            // Lista de personal en el orden deseado
             const initialPersonnelNames = [
                 'T1 ANDRÉS VARAS',
                 'PAC RAÚL DÍAZ',
                 'SO GERMÁN CASTRO',
                 'SO JUAN MUÑOZ',
+                'SO ALFONSO ESPINOZA',
                 'S1 CARLOS ALARCÓN',
                 'S1 JORGE ESPINOZA',
                 'S1 CARLOS JIMÉNEZ',
+                'S1 GREGORY FUENTES',
                 'S2 GABRIEL CLAVERÍA',
+                'S2 JOSUÉ RAÍN',
                 'C1 JONATAN MORAGA',
                 'C1 SAMI DONOSO',
                 'TT PEDRO VERDUGO'
@@ -303,21 +328,24 @@
                         const loadedPersonnelMap = new Map(loadedPersonnel.map(p => [p.name, p]));
 
                         personnel = [];
+                        // Asegurar que el personal inicial esté en el orden especificado
                         initialPersonnelNames.forEach(name => {
                             if (loadedPersonnelMap.has(name)) {
                                 personnel.push(loadedPersonnelMap.get(name));
-                                loadedPersonnelMap.delete(name);
+                                loadedPersonnelMap.delete(name); // Eliminar del mapa para no duplicar
                             } else {
                                 personnel.push({ id: generateId(), name: name, status: '' });
                             }
                         });
 
+                        // Añadir cualquier personal extra que no esté en la lista inicial, manteniendo su orden relativo
                         loadedPersonnel.forEach(p => {
-                            if (!initialPersonnelNames.includes(p.name) && !personnel.some(ep => ep.name === p.name)) {
+                            if (!initialPersonnelNames.includes(p.name)) {
                                 personnel.push(p);
                             }
                         });
                     } else {
+                        // Si no hay datos guardados, usar solo la lista inicial
                         personnel = initialPersonnelNames.map(name => ({
                             id: generateId(),
                             name: name,
@@ -326,6 +354,7 @@
                     }
                 } catch (error) {
                     console.warn('Error al cargar datos:', error);
+                    // Fallback si hay un error de carga
                     personnel = initialPersonnelNames.map(name => ({
                         id: generateId(),
                         name: name,
@@ -407,6 +436,7 @@
 
             function renderPersonnelList() {
                 form.innerHTML = '';
+                // No ordenar alfabéticamente aquí, usar el orden de 'personnel'
                 personnel.forEach(person => {
                     form.appendChild(createPersonRow(person));
                 });
@@ -454,9 +484,19 @@
                     'con permiso': 0
                 };
 
+                const personnelByCategory = {
+                    'alto mando': [],
+                    'a bordo': [],
+                    'en trabajos': [],
+                    'en comisión': [],
+                    'de baja': [],
+                    'con permiso': []
+                };
+
                 personnel.forEach(person => {
                     if (categories.some(cat => cat.value === person.status)) {
                         counts[person.status]++;
+                        personnelByCategory[person.status].push(person.name);
                     }
                 });
 
@@ -467,132 +507,82 @@
                 document.getElementById('comision-count').textContent = counts['en comisión'];
                 document.getElementById('baja-count').textContent = counts['de baja'];
                 document.getElementById('permiso-count').textContent = counts['con permiso'];
+
+                const dropdownMappings = {
+                    'alto mando': 'altomando-dropdown',
+                    'a bordo': 'abordo-dropdown',
+                    'en trabajos': 'trabajos-dropdown',
+                    'en comisión': 'comision-dropdown',
+                    'de baja': 'baja-dropdown',
+                    'con permiso': 'permiso-dropdown'
+                };
+
+                Object.keys(dropdownMappings).forEach(category => {
+                    const dropdown = document.getElementById(dropdownMappings[category]);
+                    const names = personnelByCategory[category];
+
+                    if (names.length > 0) {
+                        // Mantener el orden original o usar el orden predeterminado en que se agregaron
+                        // y generar lista con elementos li
+                        dropdown.innerHTML = '<ul>' + names.map(name => `<li>${name}</li>`).join('') + '</ul>';
+                        dropdown.style.display = 'block';
+                    } else {
+                        dropdown.innerHTML = '';
+                        dropdown.style.display = 'none';
+                    }
+                });
             }
 
+            // Función para generar PDF
             function generatePDF() {
-                // Mostrar mensaje de generación
-                generatePdfBtn.textContent = 'Generando PDF...';
-                generatePdfBtn.disabled = true;
-
-                const currentDateTime = new Date();
                 const options = {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false,
-                    timeZone: 'America/Santiago'
-                };
-                const formattedDate = new Intl.DateTimeFormat('es-CL', options).format(currentDateTime);
-
-                // Calcular estadísticas
-                const summaryCounts = {
-                    'Fuerza Efectiva': personnel.length,
-                    'Alto mando': 0,
-                    'A bordo': 0,
-                    'En trabajos': 0,
-                    'En comisión': 0,
-                    'De baja': 0,
-                    'Con permiso': 0
+                    margin: 10,
+                    filename: 'Parte_Finanzas_Abastecimiento_EMGA_2025.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
-                personnel.forEach(person => {
-                    const categoryText = categories.find(cat => cat.value === person.status)?.text;
-                    if (categoryText && summaryCounts.hasOwnProperty(categoryText)) {
-                        summaryCounts[categoryText]++;
-                    }
+                // Ocultar elementos no deseados antes de la generación del PDF
+                const noPrintElements = document.querySelectorAll('.no-print');
+                noPrintElements.forEach(el => el.style.display = 'none');
+
+                html2pdf().from(contentToPdf).set(options).save().then(() => {
+                    // Restaurar la visibilidad de los elementos después de la generación
+                    noPrintElements.forEach(el => el.style.display = '');
                 });
+            }
 
-                // Crear elemento temporal para PDF
-                const pdfElement = document.createElement('div');
-                pdfElement.className = 'pdf-content';
-                pdfElement.style.width = '210mm';
-                pdfElement.style.minHeight = '297mm';
-                pdfElement.style.backgroundColor = 'white';
-                pdfElement.style.position = 'absolute';
-                pdfElement.style.top = '-10000px';
-                pdfElement.style.left = '-10000px';
+            // Función para descargar el cuadro de resumen como imagen
+            function downloadSummaryAsImage() {
+                // Ocultar los botones de control para la captura de imagen
+                const noPrintElements = document.querySelectorAll('.no-print');
+                noPrintElements.forEach(el => el.style.display = 'none');
 
-                // Construir contenido del PDF
-                let pdfContentHtml = `
-                    <div class="pdf-header">
-                        <h1>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
-                        <p>Fecha de Generación: ${formattedDate}</p>
-                        <p>Escuela de Grumetes Alejandro Navarrete Cisterna</p>
-                    </div>
-                `;
+                html2canvas(summaryBoxToCapture, {
+                    scale: 2, // Aumentar la escala para mayor resolución
+                    logging: true,
+                    useCORS: true // Importante si tienes imágenes de fondo o fuentes externas
+                }).then(canvas => {
+                    // Crear un enlace temporal para la descarga
+                    const link = document.createElement('a');
+                    link.download = 'Resumen_Personal_EMGA.png';
+                    link.href = canvas.toDataURL('image/png');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
 
-                // Sección de resumen
-                pdfContentHtml += `<h2 class="pdf-section-title">Recuento de Personal</h2>`;
-                pdfContentHtml += `<div class="pdf-summary-grid">`;
-                for (const [key, value] of Object.entries(summaryCounts)) {
-                    pdfContentHtml += `<div class="pdf-summary-item"><span>${key}:</span> <span>${value}</span></div>`;
-                }
-                pdfContentHtml += `</div>`;
-
-                // Sección de detalle
-                pdfContentHtml += `<h2 class="pdf-section-title">Detalle del Personal</h2>`;
-                pdfContentHtml += `<ul class="pdf-personnel-list">`;
-                
-                const sortedPersonnel = [...personnel].sort((a, b) => {
-                    const statusOrder = categories.map(c => c.value);
-                    const statusA = statusOrder.indexOf(a.status);
-                    const statusB = statusOrder.indexOf(b.status);
-
-                    if (statusA !== statusB) {
-                        return statusA - statusB;
-                    }
-                    return a.name.localeCompare(b.name);
-                });
-
-                sortedPersonnel.forEach(person => {
-                    const statusText = categories.find(cat => cat.value === person.status)?.text || 'Sin asignar';
-                    pdfContentHtml += `<li><span class="person-name-pdf">${person.name}</span> <span class="person-status-pdf">${statusText}</span></li>`;
-                });
-                pdfContentHtml += `</ul>`;
-
-                pdfElement.innerHTML = pdfContentHtml;
-                document.body.appendChild(pdfElement);
-
-                // Configuración del PDF
-                const pdfOptions = {
-                    margin: [10, 10, 10, 10],
-                    filename: `Parte_Dpto_Finanzas_EMGA_2025_${currentDateTime.getFullYear()}${(currentDateTime.getMonth()+1).toString().padStart(2, '0')}${currentDateTime.getDate().toString().padStart(2, '0')}_${currentDateTime.getHours().toString().padStart(2, '0')}${currentDateTime.getMinutes().toString().padStart(2, '0')}.pdf`,
-                    image: { type: 'jpeg', quality: 0.95 },
-                    html2canvas: { 
-                        scale: 2,
-                        useCORS: true,
-                        allowTaint: true,
-                        backgroundColor: '#ffffff',
-                        width: 794,
-                        height: 1123
-                    },
-                    jsPDF: { 
-                        unit: 'mm', 
-                        format: 'a4', 
-                        orientation: 'portrait',
-                        compress: true
-                    }
-                };
-
-                // Generar PDF
-                html2pdf().from(pdfElement).set(pdfOptions).save().then(() => {
-                    // Limpiar
-                    document.body.removeChild(pdfElement);
-                    generatePdfBtn.textContent = 'Generar PDF del Parte';
-                    generatePdfBtn.disabled = false;
-                }).catch((error) => {
-                    console.error('Error al generar PDF:', error);
-                    alert('Error al generar el PDF. Por favor, intente nuevamente.');
-                    document.body.removeChild(pdfElement);
-                    generatePdfBtn.textContent = 'Generar PDF del Parte';
-                    generatePdfBtn.disabled = false;
+                    // Restaurar la visibilidad de los elementos
+                    noPrintElements.forEach(el => el.style.display = '');
+                }).catch(error => {
+                    console.error('Error al generar la imagen del resumen:', error);
+                    alert('Hubo un error al generar la imagen del resumen.');
+                    // Asegurarse de restaurar la visibilidad incluso en caso de error
+                    noPrintElements.forEach(el => el.style.display = '');
                 });
             }
 
             // Event listeners
-            generatePdfBtn.addEventListener('click', generatePDF);
             addPersonBtn.addEventListener('click', addPerson);
             newPersonNameInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
@@ -600,6 +590,8 @@
                     addPerson();
                 }
             });
+            generatePdfBtn.addEventListener('click', generatePDF);
+            downloadSummaryBtn.addEventListener('click', downloadSummaryAsImage); // Event listener para el botón de imagen
 
             // Inicialización
             loadPersonnelData();
