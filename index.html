@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -38,13 +39,13 @@
             padding: 0.75rem 0;
             border-bottom: 1px solid #e2e8f0;
         }
-        .person-row:last-of-type { /* Use last-of-type for dynamically added rows */
+        .person-row:last-of-type {
             border-bottom: none;
         }
         .person-name {
             font-weight: bold;
-            color: #003366; /* Dark blue for emphasis */
-            width: 180px; /* Adjusted width for longer names */
+            color: #003366;
+            width: 180px;
             flex-shrink: 0;
         }
         .select-group {
@@ -57,21 +58,22 @@
             border-radius: 0.375rem;
             background-color: #ffffff;
             color: #4a5568;
-            appearance: none; /* Remove default arrow */
+            appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke='%234A5568' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
             background-size: 1.5em;
-            accent-color: #003366; /* Blue for the select dropdown */
+            accent-color: #003366;
         }
         .summary-box {
-            background-color: #e6f0f9; /* Lighter blue for summary */
+            background-color: #e6f0f9;
             border: 1px solid #b3d1f1;
             border-radius: 8px;
             padding: 1.5rem;
             margin-top: 2rem;
+            text-align: center; /* Center the content for better PDF layout */
         }
         .summary-item {
             display: flex;
@@ -101,7 +103,7 @@
             border-radius: 0.375rem;
         }
         .button-armada {
-            background-color: #004080; /* Slightly lighter blue for buttons */
+            background-color: #004080;
             color: white;
             padding: 0.6rem 1.2rem;
             border-radius: 0.375rem;
@@ -113,7 +115,7 @@
             background-color: #0056b3;
         }
         .remove-btn {
-            background-color: #dc3545; /* Red for remove */
+            background-color: #dc3545;
             color: white;
             padding: 0.3rem 0.6rem;
             border-radius: 0.25rem;
@@ -124,6 +126,74 @@
         }
         .remove-btn:hover {
             background-color: #c82333;
+        }
+
+        /* Styles for PDF content only (will be dynamically created) */
+        .pdf-content {
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+        .pdf-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .pdf-header h1 {
+            font-size: 24px;
+            color: #003366;
+            margin-bottom: 5px;
+        }
+        .pdf-header p {
+            font-size: 14px;
+            color: #555;
+        }
+        .pdf-summary {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        .pdf-summary h2 {
+            font-size: 18px;
+            color: #003366;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .pdf-summary div {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dotted #eee;
+            font-size: 14px;
+        }
+        .pdf-summary div:last-child {
+            border-bottom: none;
+        }
+        .pdf-summary span:first-child {
+            font-weight: bold;
+        }
+        .pdf-detail h2 {
+            font-size: 18px;
+            color: #003366;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .pdf-detail ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .pdf-detail li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .pdf-detail li:last-child {
+            border-bottom: none;
+        }
+        .pdf-detail .status {
+            font-weight: bold;
+            color: #004080;
         }
     </style>
 </head>
@@ -148,12 +218,16 @@
             <h3 class="text-xl font-semibold mb-4 text-gray-800">Recuento de Personal</h3>
             <div id="summary">
                 <div class="summary-item"><span>Fuerza Efectiva:</span> <span id="effective-force-count">0</span></div>
+                <div class="summary-item"><span>Alto mando:</span> <span id="altomando-count">0</span></div>
                 <div class="summary-item"><span>A bordo:</span> <span id="abordo-count">0</span></div>
                 <div class="summary-item"><span>En trabajos:</span> <span id="trabajos-count">0</span></div>
                 <div class="summary-item"><span>En comisión:</span> <span id="comision-count">0</span></div>
                 <div class="summary-item"><span>De baja:</span> <span id="baja-count">0</span></div>
                 <div class="summary-item"><span>Con permiso:</span> <span id="permiso-count">0</span></div>
             </div>
+        </div>
+        <div class="text-center mt-6">
+            <button type="button" id="generate-pdf-btn" class="button-armada">Generar PDF del Parte</button>
         </div>
     </div>
 
@@ -163,13 +237,13 @@
             const addPersonBtn = document.getElementById('add-person-btn');
             const newPersonNameInput = document.getElementById('new-person-name');
             const lastUpdatedElement = document.getElementById('last-updated');
+            const generatePdfBtn = document.getElementById('generate-pdf-btn');
 
             const personnelDataKey = 'personnelDataEmga2025';
             const lastUpdatedKey = 'lastUpdatedEmga2025';
 
             let personnel = []; // Array to store personnel objects { id, name, status }
 
-            // This is the specific order provided by the user.
             const initialPersonnelNames = [
                 'T1 ANDRÉS VARAS',
                 'PAC RAÚL DÍAZ',
@@ -179,12 +253,13 @@
                 'S1 JORGE ESPINOZA',
                 'S1 CARLOS JIMÉNEZ',
                 'S2 GABRIEL CLAVERÍA',
-                'C1 JONATAN MORAGAtoal', // Keep 'toal' as per the last instruction
+                'C1 JONATAN MORAGAtoal',
                 'C1 SAMI DONOSO',
                 'TT PEDRO VERDUGO'
             ];
 
             const categories = [
+                { value: 'alto mando', text: 'Alto mando' }, // Nuevo estado
                 { value: 'a bordo', text: 'A bordo' },
                 { value: 'en trabajos', text: 'En trabajos' },
                 { value: 'en comisión', text: 'En comisión' },
@@ -194,7 +269,7 @@
 
             // Function to generate a unique ID
             function generateId() {
-                return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); // Shorter ID for display
+                return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
             }
 
             // --- Local Storage Management ---
@@ -207,26 +282,21 @@
                 const storedData = localStorage.getItem(personnelDataKey);
                 if (storedData) {
                     const loadedPersonnel = JSON.parse(storedData);
-                    // Create a map of loaded personnel by name for quick lookup
                     const loadedPersonnelMap = new Map(loadedPersonnel.map(p => [p.name, p]));
 
-                    // Reconstruct personnel array maintaining initial order and adding new ones
                     personnel = [];
                     initialPersonnelNames.forEach(name => {
                         if (loadedPersonnelMap.has(name)) {
                             personnel.push(loadedPersonnelMap.get(name));
-                            loadedPersonnelMap.delete(name); // Remove from map once added
+                            loadedPersonnelMap.delete(name);
                         } else {
-                            // If an initial person isn't in stored data, add them with default status
                             personnel.push({ id: generateId(), name: name, status: '' });
                         }
                     });
 
-                    // Add any manually added personnel that were not in the initial list
                     loadedPersonnelMap.forEach(p => personnel.push(p));
 
                 } else {
-                    // Default personnel if no data in local storage
                     personnel = initialPersonnelNames.map(name => ({
                         id: generateId(),
                         name: name,
@@ -246,9 +316,8 @@
                     minute: '2-digit',
                     second: '2-digit',
                     timeZoneName: 'short',
-                    hour12: false // Use 24-hour format
+                    hour12: false
                 };
-                // Specific for Chile's timezone (America/Santiago)
                 const formattedDate = new Intl.DateTimeFormat('es-CL', {
                     ...options,
                     timeZone: 'America/Santiago'
@@ -283,7 +352,6 @@
                     <button type="button" class="remove-btn" data-id="${person.id}">Eliminar</button>
                 `;
 
-                // Add event listener for status change
                 const selectElement = row.querySelector(`#status-${person.id}`);
                 selectElement.addEventListener('change', (e) => {
                     person.status = e.target.value;
@@ -291,7 +359,6 @@
                     updateSummary();
                 });
 
-                // Add event listener for remove button
                 const removeBtn = row.querySelector('.remove-btn');
                 removeBtn.addEventListener('click', () => {
                     removePerson(person.id);
@@ -301,7 +368,7 @@
             }
 
             function renderPersonnelList() {
-                form.innerHTML = ''; // Clear existing list
+                form.innerHTML = '';
                 personnel.forEach(person => {
                     form.appendChild(createPersonRow(person));
                 });
@@ -311,7 +378,6 @@
             function addPerson() {
                 const name = newPersonNameInput.value.trim();
                 if (name) {
-                    // Check if person already exists (case-insensitive)
                     if (personnel.some(p => p.name.toLowerCase() === name.toLowerCase())) {
                         alert('Esta persona ya existe en la lista.');
                         return;
@@ -323,9 +389,9 @@
                         status: ''
                     };
                     personnel.push(newPerson);
-                    newPersonNameInput.value = ''; // Clear input field
+                    newPersonNameInput.value = '';
                     savePersonnelData();
-                    renderPersonnelList(); // Re-render to show new person
+                    renderPersonnelList();
                 } else {
                     alert('Por favor, ingrese un nombre para la persona.');
                 }
@@ -335,14 +401,15 @@
                 if (confirm('¿Está seguro de que desea eliminar a esta persona?')) {
                     personnel = personnel.filter(person => person.id !== idToRemove);
                     savePersonnelData();
-                    renderPersonnelList(); // Re-render to remove the person
+                    renderPersonnelList();
                 }
             }
 
             // --- Summary Update ---
             function updateSummary() {
                 const counts = {
-                    'effectiveForce': personnel.length, // Fuerza Efectiva is now total personnel
+                    'effectiveForce': personnel.length,
+                    'alto mando': 0, // New count for Alto mando
                     'a bordo': 0,
                     'en trabajos': 0,
                     'en comisión': 0,
@@ -351,12 +418,13 @@
                 };
 
                 personnel.forEach(person => {
-                    if (categories.some(cat => cat.value === person.status)) { // Ensure category exists and is not empty
+                    if (categories.some(cat => cat.value === person.status)) {
                         counts[person.status]++;
                     }
                 });
 
                 document.getElementById('effective-force-count').textContent = counts.effectiveForce;
+                document.getElementById('altomando-count').textContent = counts['alto mando']; // Update Alto mando count
                 document.getElementById('abordo-count').textContent = counts['a bordo'];
                 document.getElementById('trabajos-count').textContent = counts['en trabajos'];
                 document.getElementById('comision-count').textContent = counts['en comisión'];
@@ -364,14 +432,88 @@
                 document.getElementById('permiso-count').textContent = counts['con permiso'];
             }
 
+            // --- PDF Generation ---
+            generatePdfBtn.addEventListener('click', () => {
+                const currentDateTime = new Date();
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: 'America/Santiago'
+                };
+                const formattedDate = new Intl.DateTimeFormat('es-CL', options).format(currentDateTime);
+
+                const pdfContent = document.createElement('div');
+                pdfContent.className = 'pdf-content';
+
+                // PDF Header
+                const pdfHeader = document.createElement('div');
+                pdfHeader.className = 'pdf-header';
+                pdfHeader.innerHTML = `
+                    <h1>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
+                    <p>Fecha de Generación: ${formattedDate}</p>
+                `;
+                pdfContent.appendChild(pdfHeader);
+
+                // PDF Summary (Recuento de Personal)
+                const summaryBox = document.getElementById('summary').cloneNode(true);
+                const pdfSummaryDiv = document.createElement('div');
+                pdfSummaryDiv.className = 'pdf-summary';
+                pdfSummaryDiv.innerHTML = '<h2>Recuento de Personal</h2>' + summaryBox.innerHTML;
+                pdfContent.appendChild(pdfSummaryDiv);
+
+                // PDF Detail (Detalle de cada persona)
+                const pdfDetailDiv = document.createElement('div');
+                pdfDetailDiv.className = 'pdf-detail';
+                pdfDetailDiv.innerHTML = '<h2>Detalle del Personal</h2>';
+                const detailList = document.createElement('ul');
+
+                // Sort personnel for the PDF detail, perhaps by status then name for clarity
+                const sortedPersonnel = [...personnel].sort((a, b) => {
+                    // Custom sort to group by status, then alphabetically by name
+                    const statusOrder = categories.map(c => c.value);
+                    const statusA = statusOrder.indexOf(a.status);
+                    const statusB = statusOrder.indexOf(b.status);
+
+                    if (statusA !== statusB) {
+                        return statusA - statusB;
+                    }
+                    return a.name.localeCompare(b.name);
+                });
+
+
+                sortedPersonnel.forEach(person => {
+                    const statusText = categories.find(cat => cat.value === person.status)?.text || 'Sin asignar';
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `${person.name}: <span class="status">${statusText}</span>`;
+                    detailList.appendChild(listItem);
+                });
+                pdfDetailDiv.appendChild(detailList);
+                pdfContent.appendChild(pdfDetailDiv);
+
+                // PDF Options
+                const pdfOptions = {
+                    margin: 10,
+                    filename: `Parte_Dpto_Finanzas_EMGA_2025_${currentDateTime.getFullYear()}${currentDateTime.getMonth()+1}${currentDateTime.getDate()}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().from(pdfContent).set(pdfOptions).save();
+            });
+
             // --- Initialization ---
-            loadPersonnelData(); // Load data from local storage or set defaults
-            loadLastUpdatedTime(); // Load last updated time
+            loadPersonnelData();
+            loadLastUpdatedTime();
 
             addPersonBtn.addEventListener('click', addPerson);
             newPersonNameInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    e.preventDefault(); // Prevent form submission
+                    e.preventDefault();
                     addPerson();
                 }
             });
