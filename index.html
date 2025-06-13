@@ -73,7 +73,7 @@
             border-radius: 8px;
             padding: 1.5rem;
             margin-top: 2rem;
-            text-align: center; /* Center the content for better PDF layout */
+            text-align: center;
         }
         .summary-item {
             display: flex;
@@ -128,72 +128,91 @@
             background-color: #c82333;
         }
 
-        /* Styles for PDF content only (will be dynamically created) */
-        .pdf-content {
-            padding: 20px;
+        /* Styles specifically for PDF content */
+        .pdf-container {
+            width: 210mm; /* A4 width */
+            min-height: 297mm; /* A4 height */
+            padding: 20mm;
+            box-sizing: border-box;
             font-family: 'Arial', sans-serif;
             color: #333;
+            background-color: #fff;
         }
         .pdf-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         .pdf-header h1 {
-            font-size: 24px;
+            font-size: 26px; /* Larger for PDF title */
             color: #003366;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
         .pdf-header p {
-            font-size: 14px;
+            font-size: 13px;
             color: #555;
         }
-        .pdf-summary {
-            margin-bottom: 30px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            background-color: #f9f9f9;
-        }
-        .pdf-summary h2 {
-            font-size: 18px;
+        .pdf-section-title {
+            font-size: 20px; /* Larger for section titles */
             color: #003366;
-            margin-bottom: 10px;
+            margin-top: 25px;
+            margin-bottom: 15px;
             text-align: center;
+            font-weight: bold;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
         }
-        .pdf-summary div {
+        .pdf-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Two columns for summary items */
+            gap: 10px 20px; /* Row and column gap */
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            padding: 15px 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .pdf-summary-item {
             display: flex;
             justify-content: space-between;
             padding: 5px 0;
-            border-bottom: 1px dotted #eee;
             font-size: 14px;
+            border-bottom: 1px dotted #eee;
         }
-        .pdf-summary div:last-child {
+        .pdf-summary-item:nth-last-child(-n + 2) { /* No border for the last two items if grid is 2 columns */
             border-bottom: none;
         }
-        .pdf-summary span:first-child {
+        .pdf-summary-item span:first-child {
             font-weight: bold;
+            color: #004080;
         }
-        .pdf-detail h2 {
-            font-size: 18px;
-            color: #003366;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .pdf-detail ul {
+        .pdf-personnel-list {
             list-style: none;
             padding: 0;
             margin: 0;
         }
-        .pdf-detail li {
-            padding: 8px 0;
+        .pdf-personnel-list li {
+            padding: 10px 0;
             border-bottom: 1px solid #eee;
             font-size: 14px;
+            line-height: 1.4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .pdf-detail li:last-child {
+        .pdf-personnel-list li:last-child {
             border-bottom: none;
         }
-        .pdf-detail .status {
+        .pdf-personnel-list .person-name-pdf {
             font-weight: bold;
+            color: #333;
+            flex-grow: 1;
+        }
+        .pdf-personnel-list .person-status-pdf {
+            font-weight: normal;
             color: #004080;
+            text-align: right;
+            width: 120px; /* Align status text */
         }
     </style>
 </head>
@@ -216,8 +235,7 @@
 
         <div class="summary-box">
             <h3 class="text-xl font-semibold mb-4 text-gray-800">Recuento de Personal</h3>
-            <div id="summary">
-                <div class="summary-item"><span>Fuerza Efectiva:</span> <span id="effective-force-count">0</span></div>
+            <div id="summary-display"> <div class="summary-item"><span>Fuerza Efectiva:</span> <span id="effective-force-count">0</span></div>
                 <div class="summary-item"><span>Alto mando:</span> <span id="altomando-count">0</span></div>
                 <div class="summary-item"><span>A bordo:</span> <span id="abordo-count">0</span></div>
                 <div class="summary-item"><span>En trabajos:</span> <span id="trabajos-count">0</span></div>
@@ -253,13 +271,13 @@
                 'S1 JORGE ESPINOZA',
                 'S1 CARLOS JIMÉNEZ',
                 'S2 GABRIEL CLAVERÍA',
-                'C1 JONATAN MORAGAtoal',
+                'C1 JONATAN MORAGA',
                 'C1 SAMI DONOSO',
                 'TT PEDRO VERDUGO'
             ];
 
             const categories = [
-                { value: 'alto mando', text: 'Alto mando' }, // Nuevo estado
+                { value: 'alto mando', text: 'Alto mando' },
                 { value: 'a bordo', text: 'A bordo' },
                 { value: 'en trabajos', text: 'En trabajos' },
                 { value: 'en comisión', text: 'En comisión' },
@@ -409,7 +427,7 @@
             function updateSummary() {
                 const counts = {
                     'effectiveForce': personnel.length,
-                    'alto mando': 0, // New count for Alto mando
+                    'alto mando': 0,
                     'a bordo': 0,
                     'en trabajos': 0,
                     'en comisión': 0,
@@ -424,7 +442,7 @@
                 });
 
                 document.getElementById('effective-force-count').textContent = counts.effectiveForce;
-                document.getElementById('altomando-count').textContent = counts['alto mando']; // Update Alto mando count
+                document.getElementById('altomando-count').textContent = counts['alto mando'];
                 document.getElementById('abordo-count').textContent = counts['a bordo'];
                 document.getElementById('trabajos-count').textContent = counts['en trabajos'];
                 document.getElementById('comision-count').textContent = counts['en comisión'];
@@ -446,8 +464,9 @@
                 };
                 const formattedDate = new Intl.DateTimeFormat('es-CL', options).format(currentDateTime);
 
-                const pdfContent = document.createElement('div');
-                pdfContent.className = 'pdf-content';
+                // Create a div that will hold all the content for the PDF
+                const pdfContentDiv = document.createElement('div');
+                pdfContentDiv.className = 'pdf-container'; // Apply main PDF container styles
 
                 // PDF Header
                 const pdfHeader = document.createElement('div');
@@ -456,24 +475,57 @@
                     <h1>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
                     <p>Fecha de Generación: ${formattedDate}</p>
                 `;
-                pdfContent.appendChild(pdfHeader);
+                pdfContentDiv.appendChild(pdfHeader);
 
                 // PDF Summary (Recuento de Personal)
-                const summaryBox = document.getElementById('summary').cloneNode(true);
+                const summaryCounts = {
+                    'Fuerza Efectiva': personnel.length,
+                    'Alto mando': 0,
+                    'A bordo': 0,
+                    'En trabajos': 0,
+                    'En comisión': 0,
+                    'De baja': 0,
+                    'Con permiso': 0
+                };
+
+                personnel.forEach(person => {
+                    if (categories.some(cat => cat.value === person.status)) {
+                        const categoryName = categories.find(cat => cat.value === person.status).text;
+                        summaryCounts[categoryName]++;
+                    }
+                });
+
                 const pdfSummaryDiv = document.createElement('div');
-                pdfSummaryDiv.className = 'pdf-summary';
-                pdfSummaryDiv.innerHTML = '<h2>Recuento de Personal</h2>' + summaryBox.innerHTML;
-                pdfContent.appendChild(pdfSummaryDiv);
+                pdfSummaryDiv.className = 'pdf-summary-grid'; // Use a grid for the summary
+                pdfSummaryDiv.innerHTML = `<h2 class="pdf-section-title">Recuento de Personal</h2>`; // Title inside the grid? Or outside? Let's put it outside for clarity.
+                
+                // Moved the title outside the grid for better structure
+                const summaryTitle = document.createElement('h2');
+                summaryTitle.className = 'pdf-section-title';
+                summaryTitle.textContent = 'Recuento de Personal';
+                pdfContentDiv.appendChild(summaryTitle);
+
+                const summaryGridContent = document.createElement('div');
+                summaryGridContent.className = 'pdf-summary-grid';
+                for (const [key, value] of Object.entries(summaryCounts)) {
+                    const item = document.createElement('div');
+                    item.className = 'pdf-summary-item';
+                    item.innerHTML = `<span>${key}:</span> <span>${value}</span>`;
+                    summaryGridContent.appendChild(item);
+                }
+                pdfContentDiv.appendChild(summaryGridContent);
+
 
                 // PDF Detail (Detalle de cada persona)
-                const pdfDetailDiv = document.createElement('div');
-                pdfDetailDiv.className = 'pdf-detail';
-                pdfDetailDiv.innerHTML = '<h2>Detalle del Personal</h2>';
-                const detailList = document.createElement('ul');
+                const pdfDetailTitle = document.createElement('h2');
+                pdfDetailTitle.className = 'pdf-section-title';
+                pdfDetailTitle.textContent = 'Detalle del Personal';
+                pdfContentDiv.appendChild(pdfDetailTitle);
 
-                // Sort personnel for the PDF detail, perhaps by status then name for clarity
+                const detailList = document.createElement('ul');
+                detailList.className = 'pdf-personnel-list';
+
                 const sortedPersonnel = [...personnel].sort((a, b) => {
-                    // Custom sort to group by status, then alphabetically by name
                     const statusOrder = categories.map(c => c.value);
                     const statusA = statusOrder.indexOf(a.status);
                     const statusB = statusOrder.indexOf(b.status);
@@ -484,26 +536,25 @@
                     return a.name.localeCompare(b.name);
                 });
 
-
                 sortedPersonnel.forEach(person => {
                     const statusText = categories.find(cat => cat.value === person.status)?.text || 'Sin asignar';
                     const listItem = document.createElement('li');
-                    listItem.innerHTML = `${person.name}: <span class="status">${statusText}</span>`;
+                    listItem.innerHTML = `<span class="person-name-pdf">${person.name}</span> <span class="person-status-pdf">${statusText}</span>`;
                     detailList.appendChild(listItem);
                 });
-                pdfDetailDiv.appendChild(detailList);
-                pdfContent.appendChild(pdfDetailDiv);
+                pdfContentDiv.appendChild(detailList);
 
                 // PDF Options
                 const pdfOptions = {
                     margin: 10,
-                    filename: `Parte_Dpto_Finanzas_EMGA_2025_${currentDateTime.getFullYear()}${currentDateTime.getMonth()+1}${currentDateTime.getDate()}.pdf`,
+                    filename: `Parte_Dpto_Finanzas_EMGA_2025_${currentDateTime.getFullYear()}${(currentDateTime.getMonth()+1).toString().padStart(2, '0')}${currentDateTime.getDate().toString().padStart(2, '0')}_${currentDateTime.getHours().toString().padStart(2, '0')}${currentDateTime.getMinutes().toString().padStart(2, '0')}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
+                    html2canvas: { scale: 3, logging: true, dpi: 300, letterRendering: true, useCORS: true }, // Increased scale and DPI for better quality
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
-                html2pdf().from(pdfContent).set(pdfOptions).save();
+                // Use html2pdf with the dynamically created pdfContentDiv
+                html2pdf().from(pdfContentDiv).set(pdfOptions).save();
             });
 
             // --- Initialization ---
