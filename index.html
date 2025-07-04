@@ -37,6 +37,9 @@
             width: 95%;
             max-width: 1024px;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         @media (min-width: 768px) {
             .container-armada { width: 75%; }
@@ -56,6 +59,7 @@
             margin-top: 1.5rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid #e2e8f0;
+            width: 100%; /* Asegura que la grilla ocupe el ancho del contenedor */
         }
         .person-card {
             background-color: #e0e7ff; /* Fondo azul claro */
@@ -229,9 +233,10 @@
             padding: 1.5rem;
             margin-top: 2rem;
             text-align: center;
+            width: 100%; /* Asegura que el resumen ocupe el ancho del contenedor */
         }
         .summary-section {
-            padding: 1rem; /* Aumentado padding para más espacio */
+            padding: 1rem 0; /* Aumentado padding para más espacio */
             border-bottom: 1px dotted #cce0f5;
             text-align: left;
         }
@@ -323,6 +328,7 @@
             flex-direction: column;
             gap: 1rem;
             align-items: stretch;
+            width: 100%; /* Asegura que la sección ocupe el ancho del contenedor */
         }
         @media (min-width: 640px) {
             .add-person-section {
@@ -330,7 +336,7 @@
                 align-items: center;
             }
         }
-        .add-person-section input {
+        .add-person-section input, .filter-section select {
             flex-grow: 1;
             padding: 0.5rem;
             border: 1px solid #cbd5e0;
@@ -356,9 +362,9 @@
         .button-armada:hover {
             background-color: #0056b3;
         }
-        
-        /* Ocultar elementos para la captura de imagen */
-        .no-capture {
+
+        /* Clases para ocultar/mostrar elementos durante la captura */
+        .hide-for-capture {
             display: none !important;
         }
 
@@ -391,31 +397,87 @@
         /* Estilos para los títulos principales en el contenedor */
         .container-armada h2 {
             margin-bottom: 1.5rem; /* Espacio debajo del título principal */
+            width: 100%; /* Asegura que el título ocupe el ancho del contenedor */
+            text-align: center;
         }
         .summary-box h3 {
             margin-bottom: 1.5rem; /* Espacio debajo del título del resumen */
+            text-align: center;
         }
 
+        /* Estilos para la sección de filtro y búsqueda */
+        .filter-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            width: 100%; /* Asegura que la sección ocupe el ancho del contenedor */
+        }
+        @media (min-width: 640px) {
+            .filter-section {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        .filter-section input, .filter-section select {
+            flex-grow: 1;
+        }
+        .title-input {
+            width: 100%;
+            font-size: 2.25rem; /* text-3xl */
+            font-weight: bold;
+            text-align: center;
+            background: none;
+            border: none;
+            color: #ffffff;
+            padding: 0;
+            margin: 0;
+            line-height: 1.2;
+            cursor: pointer;
+        }
+        .title-input:hover {
+            text-decoration: underline;
+        }
+        .title-input:focus {
+            outline: 2px solid #ffcc00;
+            outline-offset: 2px;
+            border-radius: 4px;
+            cursor: text;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
     <header class="header-armada w-full">
-        <h1 class="text-3xl font-bold">Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
+        <input type="text" id="department-title-input" class="title-input" value="Parte Dpto. Finanzas y Abastecimiento EMGA 2025">
         <div class="last-updated" id="last-updated"></div>
     </header>
 
-    <div class="container-armada mt-8 mb-8">
+    <div class="container-armada mt-8 mb-8" id="main-content-to-capture">
         <h2 class="text-2xl font-semibold text-gray-800">Estado del Personal</h2>
 
-        <div id="personnel-grid">
-            </div>
+        <div class="filter-section"> <input type="text" id="search-input" placeholder="Buscar personal por nombre...">
+            <select id="status-filter" class="w-full sm:w-auto">
+                <option value="all">Todos los estados</option>
+                <option value="forman">Forman</option>
+                <option value="conmotivo">Con motivo</option>
+                <option value="">Sin motivo</option>
+                <option value="alto mando">Alto mando</option>
+                <option value="en trabajos">En trabajos</option>
+                <option value="en comisión">En comisión</option>
+                <option value="de baja">De baja</option>
+                <option value="con permiso">Con permiso</option>
+            </select>
+        </div>
 
-        <div class="add-person-section">
-            <input type="text" id="new-person-name" placeholder="Escriba el nombre completo de la persona">
+        <div id="personnel-grid"> </div>
+
+        <div class="add-person-section"> <input type="text" id="new-person-name" placeholder="Escriba el nombre completo de la persona a agregar">
             <button type="button" id="add-person-btn" class="button-armada">Agregar Persona</button>
         </div>
 
-        <div class="summary-box" id="summary-box-to-capture">
+        <div class="summary-box">
             <h3 class="text-xl font-semibold text-gray-800">Resumen General</h3>
 
             <div class="summary-section">
@@ -424,7 +486,7 @@
                     <span id="effective-force-count">0</span>
                 </div>
             </div>
-            
+
             <div class="summary-section">
                 <div class="summary-item with-dropdown">
                     <div class="summary-header-item">
@@ -444,6 +506,17 @@
                         <button class="toggle-btn" data-target="conmotivo-dropdown">Mostrar</button>
                     </div>
                     <div class="personnel-dropdown" id="conmotivo-dropdown"></div>
+                </div>
+            </div>
+
+            <div class="summary-section">
+                <div class="summary-item with-dropdown">
+                    <div class="summary-header-item">
+                        <span>Sin motivo:</span>
+                        <span id="sinmotivo-count-num">0</span>
+                        <button class="toggle-btn" data-target="sinmotivo-dropdown">Mostrar</button>
+                    </div>
+                    <div class="personnel-dropdown" id="sinmotivo-dropdown"></div>
                 </div>
             </div>
 
@@ -495,9 +568,8 @@
             const newPersonNameInput = document.getElementById('new-person-name');
             const lastUpdatedElement = document.getElementById('last-updated');
             const downloadSummaryBtn = document.getElementById('download-summary-btn');
-            const summaryBoxToCapture = document.getElementById('summary-box-to-capture');
+            const mainContentToCapture = document.getElementById('main-content-to-capture'); 
             const fullDetailSection = document.getElementById('full-detail-section');
-
 
             const editStatusPopover = document.getElementById('edit-status-popover');
             const popoverCloseBtn = document.getElementById('popover-close-btn');
@@ -506,11 +578,16 @@
             const popoverPersonName = document.getElementById('popover-person-name');
             const popoverStatusSelect = document.getElementById('popover-status-select');
 
+            const searchInput = document.getElementById('search-input');
+            const statusFilterSelect = document.getElementById('status-filter');
+            const departmentTitleInput = document.getElementById('department-title-input');
+
             const personnelDataKey = 'personnelDataEmga2025';
             const lastUpdatedKey = 'lastUpdatedEmga2025';
+            const departmentTitleKey = 'departmentTitleEmga2025';
 
             let personnel = [];
-            let currentEditingPersonId = null; // Para saber qué persona estamos editando
+            let currentEditingPersonId = null;
 
             const initialPersonnelNames = [
                 'T1 ANDRÉS VARAS',
@@ -532,15 +609,15 @@
             ];
 
             const categories = [
+                { value: '', text: 'Sin motivo' }, // Cambiado a "Sin motivo"
                 { value: 'alto mando', text: 'Alto mando' },
-                { value: 'forman', text: 'Forman' }, // Cambiado 'a bordo' a 'forman' para selección
+                { value: 'forman', text: 'Forman' },
                 { value: 'en trabajos', text: 'En trabajos' },
                 { value: 'en comisión', text: 'En comisión' },
                 { value: 'de baja', text: 'De baja' },
                 { value: 'con permiso', text: 'Con permiso' }
             ];
 
-            // Rellenar el selector del popover con las categorías
             function populatePopoverCategories() {
                 popoverStatusSelect.innerHTML = '<option value="">Seleccione estado</option>';
                 categories.forEach(cat => {
@@ -574,31 +651,25 @@
                         personnel = [];
                         initialPersonnelNames.forEach(name => {
                             if (loadedPersonnelMap.has(name)) {
-                                personnel.push(loadedPersonnelMap.get(name));
+                                const person = loadedPersonnelMap.get(name);
+                                if (person.status === 'a bordo') {
+                                    person.status = 'forman';
+                                }
+                                personnel.push(person);
                                 loadedPersonnelMap.delete(name);
                             } else {
                                 personnel.push({ id: generateId(), name: name, status: '' });
                             }
                         });
 
-                        // Add any additional personnel that were not in the initial list
-                        // Also, ensure old 'a bordo' status maps to 'forman' for consistency
                         loadedPersonnel.forEach(p => {
                             if (!initialPersonnelNames.includes(p.name)) {
-                                if (p.status === 'a bordo') { // Update old status if found
+                                if (p.status === 'a bordo') {
                                     p.status = 'forman';
                                 }
                                 personnel.push(p);
                             }
                         });
-                        // Also handle cases where old personnel (from initial list) might have 'a bordo' status
-                        personnel.forEach(p => {
-                            if (p.status === 'a bordo') {
-                                p.status = 'forman';
-                            }
-                        });
-
-
                     } else {
                         personnel = initialPersonnelNames.map(name => ({
                             id: generateId(),
@@ -656,27 +727,50 @@
                 }
             }
 
+            function saveDepartmentTitle(title) {
+                try {
+                    localStorage.setItem(departmentTitleKey, title);
+                } catch (error) {
+                    console.warn('No se pudo guardar el título del departamento:', error);
+                }
+            }
+
+            function loadDepartmentTitle() {
+                try {
+                    const storedTitle = localStorage.getItem(departmentTitleKey);
+                    if (storedTitle) {
+                        departmentTitleInput.value = storedTitle;
+                    }
+                } catch (error) {
+                    console.warn('Error al cargar el título del departamento:', error);
+                }
+            }
+
             function createPersonCard(person) {
                 const card = document.createElement('div');
                 card.className = 'person-card';
-                card.dataset.id = person.id; // Almacena el ID para fácil acceso
+                card.dataset.id = person.id;
 
-                // Botón de eliminar
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-card-btn';
                 removeBtn.textContent = 'X';
                 removeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Evita que se abra el popover al hacer clic en eliminar
+                    e.stopPropagation();
                     removePerson(person.id);
                 });
 
-                // Nombre de la persona
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'person-card-name';
                 nameDiv.textContent = person.name;
 
-                // Estado de la persona - Usar 'a bordo' si es 'forman' para la visualización de la tarjeta
-                const displayStatus = person.status === 'forman' ? 'A bordo' : (categories.find(cat => cat.value === person.status)?.text || 'Sin estado');
+                // Muestra 'A bordo' para el estado 'forman', y 'Sin motivo' para estado vacío
+                let displayStatus = 'Sin motivo';
+                if (person.status === 'forman') {
+                    displayStatus = 'A bordo';
+                } else if (person.status !== '') {
+                    displayStatus = categories.find(cat => cat.value === person.status)?.text || 'Sin estado';
+                }
+                
                 const statusDiv = document.createElement('div');
                 statusDiv.className = 'person-card-status';
                 statusDiv.textContent = displayStatus;
@@ -685,7 +779,6 @@
                 card.appendChild(nameDiv);
                 card.appendChild(statusDiv);
 
-                // Evento para abrir el popover al hacer clic en la tarjeta
                 card.addEventListener('click', () => openEditPopover(person));
 
                 return card;
@@ -693,9 +786,32 @@
 
             function renderPersonnelGrid() {
                 personnelGrid.innerHTML = '';
-                personnel.forEach(person => {
-                    personnelGrid.appendChild(createPersonCard(person));
+                const searchTerm = searchInput.value.toLowerCase();
+                const filterStatus = statusFilterSelect.value;
+
+                const filteredPersonnel = personnel.filter(person => {
+                    const matchesSearch = person.name.toLowerCase().includes(searchTerm);
+                    
+                    let matchesFilterStatus = true;
+                    if (filterStatus === 'forman') {
+                        matchesFilterStatus = person.status === 'forman';
+                    } else if (filterStatus === 'conmotivo') {
+                        matchesFilterStatus = ['alto mando', 'en trabajos', 'en comisión', 'de baja', 'con permiso'].includes(person.status);
+                    } else if (filterStatus === '') { // Filtra por "Sin motivo"
+                        matchesFilterStatus = person.status === '';
+                    } else if (filterStatus !== 'all') {
+                        matchesFilterStatus = person.status === filterStatus;
+                    }
+                    return matchesSearch && matchesFilterStatus;
                 });
+
+                if (filteredPersonnel.length === 0) {
+                    personnelGrid.innerHTML = '<p class="text-center text-gray-500 mt-4 col-span-full">No se encontraron personas con los criterios de búsqueda o filtro.</p>';
+                } else {
+                    filteredPersonnel.forEach(person => {
+                        personnelGrid.appendChild(createPersonCard(person));
+                    });
+                }
                 updateSummary();
             }
 
@@ -747,7 +863,7 @@
                     if (personToUpdate) {
                         personToUpdate.status = popoverStatusSelect.value;
                         savePersonnelData();
-                        renderPersonnelGrid(); // Volver a renderizar para actualizar la tarjeta
+                        renderPersonnelGrid();
                     }
                 }
                 closeEditPopover();
@@ -757,6 +873,7 @@
                 const effectiveForceCount = personnel.length;
                 let formanPersonnel = [];
                 let conMotivoPersonnel = [];
+                let sinMotivoPersonnel = []; // Nuevo array para "Sin motivo"
                 const personnelByFullCategory = {
                     'alto mando': [],
                     'en trabajos': [],
@@ -769,10 +886,11 @@
                     const status = person.status;
                     if (status === 'forman') {
                         formanPersonnel.push(person.name);
-                    }
-                    if (['alto mando', 'en trabajos', 'en comisión', 'de baja', 'con permiso'].includes(status)) {
+                    } else if (['alto mando', 'en trabajos', 'en comisión', 'de baja', 'con permiso'].includes(status)) {
                         conMotivoPersonnel.push(person.name);
                         personnelByFullCategory[status].push(person.name);
+                    } else if (status === '') { // Si el estado está vacío, es "Sin motivo"
+                        sinMotivoPersonnel.push(person.name);
                     }
                 });
 
@@ -780,6 +898,7 @@
                 document.getElementById('effective-force-count').textContent = effectiveForceCount;
                 document.getElementById('forman-count-num').textContent = formanPersonnel.length;
                 document.getElementById('conmotivo-count-num').textContent = conMotivoPersonnel.length;
+                document.getElementById('sinmotivo-count-num').textContent = sinMotivoPersonnel.length;
 
                 // Update Forman dropdown
                 const formanDropdown = document.getElementById('forman-dropdown');
@@ -787,10 +906,9 @@
                 if (formanPersonnel.length > 0) {
                     formanDropdown.innerHTML = '<ul>' + formanPersonnel.map(name => `<li>${name}</li>`).join('') + '</ul>';
                     formanToggleButton.disabled = false;
-                    formanToggleButton.textContent = (formanDropdown.style.display === 'block' ? 'Plegar' : 'Mostrar');
                 } else {
-                    formanDropdown.innerHTML = '<p class="text-center text-gray-500 text-sm italic">No hay personal Forman.</p>';
-                    formanDropdown.style.display = 'none'; // Ensure it's hidden
+                    formanDropdown.innerHTML = '<p class="text-center text-gray-500 text-sm italic py-2">No hay personal en Forman.</p>';
+                    formanDropdown.style.display = 'none';
                     formanToggleButton.disabled = true;
                     formanToggleButton.textContent = 'Mostrar';
                 }
@@ -801,12 +919,24 @@
                 if (conMotivoPersonnel.length > 0) {
                     conMotivoDropdown.innerHTML = '<ul>' + conMotivoPersonnel.map(name => `<li>${name}</li>`).join('') + '</ul>';
                     conMotivoToggleButton.disabled = false;
-                    conMotivoToggleButton.textContent = (conMotivoDropdown.style.display === 'block' ? 'Plegar' : 'Mostrar');
                 } else {
-                    conMotivoDropdown.innerHTML = '<p class="text-center text-gray-500 text-sm italic">No hay personal Con motivo.</p>';
-                    conMotivoDropdown.style.display = 'none'; // Ensure it's hidden
+                    conMotivoDropdown.innerHTML = '<p class="text-center text-gray-500 text-sm italic py-2">No hay personal en Con motivo.</p>';
+                    conMotivoDropdown.style.display = 'none';
                     conMotivoToggleButton.disabled = true;
                     conMotivoToggleButton.textContent = 'Mostrar';
+                }
+
+                // Update Sin motivo dropdown
+                const sinMotivoDropdown = document.getElementById('sinmotivo-dropdown');
+                const sinMotivoToggleButton = document.querySelector('.toggle-btn[data-target="sinmotivo-dropdown"]');
+                if (sinMotivoPersonnel.length > 0) {
+                    sinMotivoDropdown.innerHTML = '<ul>' + sinMotivoPersonnel.map(name => `<li>${name}</li>`).join('') + '</ul>';
+                    sinMotivoToggleButton.disabled = false;
+                } else {
+                    sinMotivoDropdown.innerHTML = '<p class="text-center text-gray-500 text-sm italic py-2">No hay personal Sin motivo.</p>';
+                    sinMotivoDropdown.style.display = 'none';
+                    sinMotivoToggleButton.disabled = true;
+                    sinMotivoToggleButton.textContent = 'Mostrar';
                 }
 
                 // Update full detail dropdowns (for capture)
@@ -824,20 +954,21 @@
                     if (names.length > 0) {
                         dropdown.innerHTML = '<ul>' + names.map(name => `<li>${name}</li>`).join('') + '</ul>';
                     } else {
-                        dropdown.innerHTML = `<p class="text-center text-gray-500 text-sm italic">No hay personal en ${categories.find(c => c.value === category)?.text || category}.</p>`;
+                        const categoryName = categories.find(c => c.value === category)?.text || category;
+                        dropdown.innerHTML = `<p class="text-center text-gray-500 text-sm italic py-2">No hay personal en ${categoryName}.</p>`;
                     }
-                    // These full dropdowns remain hidden by default, only shown for capture
-                    dropdown.style.display = 'none'; 
+                    dropdown.style.display = 'none'; // Aseguramos que estén ocultos por defecto
                 });
 
-                // After updating, ensure correct toggle button text
                 document.querySelectorAll('.toggle-btn').forEach(btn => {
                     const targetId = btn.dataset.target;
                     const dropdown = document.getElementById(targetId);
-                    if (dropdown.style.display === 'block') {
-                        btn.textContent = 'Plegar';
-                    } else {
-                        btn.textContent = 'Mostrar';
+                    if (dropdown && !btn.disabled) {
+                        if (dropdown.style.display === 'block') {
+                            btn.textContent = 'Plegar';
+                        } else {
+                            btn.textContent = 'Mostrar';
+                        }
                     }
                 });
             }
@@ -856,20 +987,46 @@
 
             function downloadSummaryAsImage() {
                 // Elementos que deben ocultarse para la captura
-                const elementsToHideForCapture = document.querySelectorAll('#personnel-grid, .add-person-section, #download-summary-btn, .header-armada');
-                elementsToHideForCapture.forEach(el => el.classList.add('no-capture'));
+                const elementsToHideForCapture = [
+                    document.querySelector('.filter-section'),
+                    document.getElementById('personnel-grid'),
+                    document.querySelector('.add-person-section'),
+                    document.getElementById('download-summary-btn') // Ocultar el propio botón de descarga
+                ].filter(Boolean); // Filtrar elementos que puedan ser null
+
+                elementsToHideForCapture.forEach(el => el.classList.add('hide-for-capture'));
+
+                // Asegurarse de que el input del título se muestre como texto normal para la captura
+                const originalTitleInputState = {
+                    display: departmentTitleInput.style.display,
+                    readOnly: departmentTitleInput.readOnly,
+                    cursor: departmentTitleInput.style.cursor,
+                    outline: departmentTitleInput.style.outline
+                };
+                departmentTitleInput.style.display = 'block';
+                departmentTitleInput.readOnly = true;
+                departmentTitleInput.style.cursor = 'default';
+                departmentTitleInput.style.outline = 'none';
+                
+                // Expandir la sección de "Detalle Completo por Categoría" si está oculta
+                let wasFullDetailSectionHidden = false;
+                if (fullDetailSection && fullDetailSection.style.display === 'none') {
+                    wasFullDetailSectionHidden = true;
+                    fullDetailSection.style.display = 'block';
+                }
 
                 // Asegurarse de que todos los dropdowns relevantes estén visibles y expandidos para la captura
                 const dropdownsToExpandForCapture = [
                     'forman-dropdown',
                     'conmotivo-dropdown',
+                    'sinmotivo-dropdown',
                     'altomando-dropdown-full',
                     'trabajos-dropdown-full',
                     'comision-dropdown-full',
                     'baja-dropdown-full',
                     'permiso-dropdown-full'
                 ];
-                const originalDropdownStates = {}; // Para guardar el estado original (display, maxHeight, overflow)
+                const originalDropdownStates = {}; 
 
                 dropdownsToExpandForCapture.forEach(id => {
                     const dropdown = document.getElementById(id);
@@ -880,25 +1037,19 @@
                             overflow: dropdown.style.overflow
                         };
                         dropdown.style.display = 'block';
-                        dropdown.style.maxHeight = 'none'; // Remover límite de altura
-                        dropdown.style.overflow = 'visible'; // Mostrar todo el contenido
+                        dropdown.style.maxHeight = 'none';
+                        dropdown.style.overflow = 'visible';
                     }
                 });
 
-                // Mostrar la sección de "Detalle Completo por Categoría" si está oculta para la captura
-                let wasFullDetailSectionHidden = false;
-                if (fullDetailSection && fullDetailSection.style.display === 'none') {
-                    wasFullDetailSectionHidden = true;
-                    fullDetailSection.style.display = 'block';
-                }
-
-                html2canvas(summaryBoxToCapture, {
+                // Captura el contenedor principal, que ahora incluye el header y el resumen
+                html2canvas(mainContentToCapture, {
                     scale: 2,
                     logging: false,
-                    useCORS: true
+                    useCORS: true,
                 }).then(canvas => {
                     const link = document.createElement('a');
-                    link.download = `Resumen_Personal_EMGA_${new Date().toLocaleDateString('es-CL').replace(/\//g, '-')}.png`;
+                    link.download = `${departmentTitleInput.value.replace(/[^a-z0-9]/gi, '_')}_${new Date().toLocaleDateString('es-CL').replace(/\//g, '-')}.png`;
                     link.href = canvas.toDataURL('image/png');
                     document.body.appendChild(link);
                     link.click();
@@ -909,7 +1060,7 @@
                     alert('Hubo un error al generar la imagen del resumen.');
                 }).finally(() => {
                     // Restaurar la visibilidad y propiedades de los elementos y dropdowns
-                    elementsToHideForCapture.forEach(el => el.classList.remove('no-capture'));
+                    elementsToHideForCapture.forEach(el => el.classList.remove('hide-for-capture'));
 
                     dropdownsToExpandForCapture.forEach(id => {
                         const dropdown = document.getElementById(id);
@@ -920,16 +1071,20 @@
                         }
                     });
 
-                    // Restaurar el estado de oculto para la sección de "Detalle Completo por Categoría"
+                    // Restaurar el estado del input del título
+                    departmentTitleInput.style.display = originalTitleInputState.display;
+                    departmentTitleInput.readOnly = originalTitleInputState.readOnly;
+                    departmentTitleInput.style.cursor = originalTitleInputState.cursor;
+                    departmentTitleInput.style.outline = originalTitleInputState.outline;
+                    
                     if (wasFullDetailSectionHidden && fullDetailSection) {
                         fullDetailSection.style.display = 'none';
                     }
                     
-                    // Restaurar los botones de toggle a "Mostrar" o "Plegar" según el estado real de los dropdowns
                     document.querySelectorAll('.toggle-btn').forEach(btn => {
                         const targetId = btn.dataset.target;
                         const dropdown = document.getElementById(targetId);
-                        if (dropdown) { // Check if dropdown exists
+                        if (dropdown && !btn.disabled) {
                             if (dropdown.style.display === 'block') {
                                 btn.textContent = 'Plegar';
                             } else {
@@ -955,24 +1110,31 @@
             popoverCancelBtn.addEventListener('click', closeEditPopover);
             popoverSaveBtn.addEventListener('click', savePopoverChanges);
             editStatusPopover.addEventListener('click', (e) => {
-                // Cierra el popover si se hace clic fuera del contenido
                 if (e.target === editStatusPopover) {
                     closeEditPopover();
                 }
             });
 
-            // Event listeners para los botones de toggle
-            // Delegación de eventos para botones de toggle
             document.addEventListener('click', (e) => {
                 if (e.target.classList.contains('toggle-btn') && !e.target.disabled) {
                     toggleDropdown(e.target);
                 }
             });
 
+            // Event listeners para búsqueda y filtro
+            searchInput.addEventListener('input', renderPersonnelGrid);
+            statusFilterSelect.addEventListener('change', renderPersonnelGrid);
+
+            // Event listeners para el título del departamento
+            departmentTitleInput.addEventListener('change', (e) => saveDepartmentTitle(e.target.value));
+            departmentTitleInput.addEventListener('blur', (e) => saveDepartmentTitle(e.target.value));
+
+
             // Inicialización
-            populatePopoverCategories(); // Rellenar categorías al cargar
+            populatePopoverCategories();
             loadPersonnelData();
             loadLastUpdatedTime();
+            loadDepartmentTitle();
         });
     </script>
 </body>
