@@ -363,7 +363,7 @@
             background-color: #0056b3;
         }
 
-        /* Clases para ocultar/mostrar elementos durante la captura */
+        /* Clase para ocultar elementos temporalmente durante la captura */
         .hide-for-capture {
             display: none !important;
         }
@@ -448,16 +448,16 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center">
+<body class="min-h-screen flex flex-col items-center" id="full-page-content-to-capture"> 
     <header class="header-armada w-full">
         <input type="text" id="department-title-input" class="title-input" value="Parte Dpto. Finanzas y Abastecimiento EMGA 2025">
         <div class="last-updated" id="last-updated"></div>
     </header>
 
-    <div class="container-armada mt-8 mb-8" id="main-content-to-capture">
-        <h2 class="text-2xl font-semibold text-gray-800">Estado del Personal</h2>
+    <div class="container-armada mt-8 mb-8"> <h2 class="text-2xl font-semibold text-gray-800">Estado del Personal</h2>
 
-        <div class="filter-section"> <input type="text" id="search-input" placeholder="Buscar personal por nombre...">
+        <div class="filter-section">
+            <input type="text" id="search-input" placeholder="Buscar personal por nombre...">
             <select id="status-filter" class="w-full sm:w-auto">
                 <option value="all">Todos los estados</option>
                 <option value="forman">Forman</option>
@@ -471,9 +471,11 @@
             </select>
         </div>
 
-        <div id="personnel-grid"> </div>
+        <div id="personnel-grid">
+        </div>
 
-        <div class="add-person-section"> <input type="text" id="new-person-name" placeholder="Escriba el nombre completo de la persona a agregar">
+        <div class="add-person-section">
+            <input type="text" id="new-person-name" placeholder="Escriba el nombre completo de la persona a agregar">
             <button type="button" id="add-person-btn" class="button-armada">Agregar Persona</button>
         </div>
 
@@ -568,7 +570,9 @@
             const newPersonNameInput = document.getElementById('new-person-name');
             const lastUpdatedElement = document.getElementById('last-updated');
             const downloadSummaryBtn = document.getElementById('download-summary-btn');
-            const mainContentToCapture = document.getElementById('main-content-to-capture'); 
+            
+            // EL CONTENEDOR PRINCIPAL A CAPTURAR AHORA ES EL BODY
+            const fullPageContentToCapture = document.getElementById('full-page-content-to-capture'); 
             const fullDetailSection = document.getElementById('full-detail-section');
 
             const editStatusPopover = document.getElementById('edit-status-popover');
@@ -609,7 +613,7 @@
             ];
 
             const categories = [
-                { value: '', text: 'Sin motivo' }, // Cambiado a "Sin motivo"
+                { value: '', text: 'Sin motivo' },
                 { value: 'alto mando', text: 'Alto mando' },
                 { value: 'forman', text: 'Forman' },
                 { value: 'en trabajos', text: 'En trabajos' },
@@ -701,9 +705,10 @@
                     hour12: false
                 };
                 try {
+                    // Formato específico para Chile
                     const formattedDate = new Intl.DateTimeFormat('es-CL', {
                         ...options,
-                        timeZone: 'America/Santiago'
+                        timeZone: 'America/Santiago' // Zona horaria de Chile Continental
                     }).format(now);
                     lastUpdatedElement.textContent = `Última actualización: ${formattedDate}`;
                     localStorage.setItem(lastUpdatedKey, formattedDate);
@@ -719,7 +724,7 @@
                     if (storedTime) {
                         lastUpdatedElement.textContent = `Última actualización: ${storedTime}`;
                     } else {
-                        lastUpdatedElement.textContent = 'Última actualización: Nunca';
+                        updateLastUpdatedTime(); // Si no hay tiempo guardado, establecerlo ahora
                     }
                 } catch (error) {
                     console.warn('Error al cargar tiempo:', error);
@@ -763,7 +768,6 @@
                 nameDiv.className = 'person-card-name';
                 nameDiv.textContent = person.name;
 
-                // Muestra 'A bordo' para el estado 'forman', y 'Sin motivo' para estado vacío
                 let displayStatus = 'Sin motivo';
                 if (person.status === 'forman') {
                     displayStatus = 'A bordo';
@@ -873,7 +877,7 @@
                 const effectiveForceCount = personnel.length;
                 let formanPersonnel = [];
                 let conMotivoPersonnel = [];
-                let sinMotivoPersonnel = []; // Nuevo array para "Sin motivo"
+                let sinMotivoPersonnel = [];
                 const personnelByFullCategory = {
                     'alto mando': [],
                     'en trabajos': [],
@@ -889,77 +893,51 @@
                     } else if (['alto mando', 'en trabajos', 'en comisión', 'de baja', 'con permiso'].includes(status)) {
                         conMotivoPersonnel.push(person.name);
                         personnelByFullCategory[status].push(person.name);
-                    } else if (status === '') { // Si el estado está vacío, es "Sin motivo"
+                    } else if (status === '') {
                         sinMotivoPersonnel.push(person.name);
                     }
                 });
 
-                // Update counts
                 document.getElementById('effective-force-count').textContent = effectiveForceCount;
                 document.getElementById('forman-count-num').textContent = formanPersonnel.length;
                 document.getElementById('conmotivo-count-num').textContent = conMotivoPersonnel.length;
                 document.getElementById('sinmotivo-count-num').textContent = sinMotivoPersonnel.length;
 
-                // Update Forman dropdown
-                const formanDropdown = document.getElementById('forman-dropdown');
-                const formanToggleButton = document.querySelector('.toggle-btn[data-target="forman-dropdown"]');
-                if (formanPersonnel.length > 0) {
-                    formanDropdown.innerHTML = '<ul>' + formanPersonnel.map(name => `<li>${name}</li>`).join('') + '</ul>';
-                    formanToggleButton.disabled = false;
-                } else {
-                    formanDropdown.innerHTML = '<p class="text-center text-gray-500 text-sm italic py-2">No hay personal en Forman.</p>';
-                    formanDropdown.style.display = 'none';
-                    formanToggleButton.disabled = true;
-                    formanToggleButton.textContent = 'Mostrar';
-                }
+                const dropdownsInfo = [
+                    { id: 'forman-dropdown', names: formanPersonnel, toggleBtnSelector: '[data-target="forman-dropdown"]', emptyMsg: 'No hay personal en Forman.' },
+                    { id: 'conmotivo-dropdown', names: conMotivoPersonnel, toggleBtnSelector: '[data-target="conmotivo-dropdown"]', emptyMsg: 'No hay personal en Con motivo.' },
+                    { id: 'sinmotivo-dropdown', names: sinMotivoPersonnel, toggleBtnSelector: '[data-target="sinmotivo-dropdown"]', emptyMsg: 'No hay personal Sin motivo.' },
+                    { id: 'altomando-dropdown-full', names: personnelByFullCategory['alto mando'], emptyMsg: 'No hay personal en Alto mando.' },
+                    { id: 'trabajos-dropdown-full', names: personnelByFullCategory['en trabajos'], emptyMsg: 'No hay personal en En trabajos.' },
+                    { id: 'comision-dropdown-full', names: personnelByFullCategory['en comisión'], emptyMsg: 'No hay personal en En comisión.' },
+                    { id: 'baja-dropdown-full', names: personnelByFullCategory['de baja'], emptyMsg: 'No hay personal en De baja.' },
+                    { id: 'permiso-dropdown-full', names: personnelByFullCategory['con permiso'], emptyMsg: 'No hay personal en Con permiso.' }
+                ];
 
-                // Update Con motivo dropdown
-                const conMotivoDropdown = document.getElementById('conmotivo-dropdown');
-                const conMotivoToggleButton = document.querySelector('.toggle-btn[data-target="conmotivo-dropdown"]');
-                if (conMotivoPersonnel.length > 0) {
-                    conMotivoDropdown.innerHTML = '<ul>' + conMotivoPersonnel.map(name => `<li>${name}</li>`).join('') + '</ul>';
-                    conMotivoToggleButton.disabled = false;
-                } else {
-                    conMotivoDropdown.innerHTML = '<p class="text-center text-gray-500 text-sm italic py-2">No hay personal en Con motivo.</p>';
-                    conMotivoDropdown.style.display = 'none';
-                    conMotivoToggleButton.disabled = true;
-                    conMotivoToggleButton.textContent = 'Mostrar';
-                }
+                dropdownsInfo.forEach(info => {
+                    const dropdown = document.getElementById(info.id);
+                    const toggleButton = info.toggleBtnSelector ? document.querySelector(info.toggleBtnSelector) : null;
 
-                // Update Sin motivo dropdown
-                const sinMotivoDropdown = document.getElementById('sinmotivo-dropdown');
-                const sinMotivoToggleButton = document.querySelector('.toggle-btn[data-target="sinmotivo-dropdown"]');
-                if (sinMotivoPersonnel.length > 0) {
-                    sinMotivoDropdown.innerHTML = '<ul>' + sinMotivoPersonnel.map(name => `<li>${name}</li>`).join('') + '</ul>';
-                    sinMotivoToggleButton.disabled = false;
-                } else {
-                    sinMotivoDropdown.innerHTML = '<p class="text-center text-gray-500 text-sm italic py-2">No hay personal Sin motivo.</p>';
-                    sinMotivoDropdown.style.display = 'none';
-                    sinMotivoToggleButton.disabled = true;
-                    sinMotivoToggleButton.textContent = 'Mostrar';
-                }
-
-                // Update full detail dropdowns (for capture)
-                const fullDropdownMappings = {
-                    'alto mando': 'altomando-dropdown-full',
-                    'en trabajos': 'trabajos-dropdown-full',
-                    'en comisión': 'comision-dropdown-full',
-                    'de baja': 'baja-dropdown-full',
-                    'con permiso': 'permiso-dropdown-full',
-                };
-
-                Object.keys(fullDropdownMappings).forEach(category => {
-                    const dropdown = document.getElementById(fullDropdownMappings[category]);
-                    const names = personnelByFullCategory[category];
-                    if (names.length > 0) {
-                        dropdown.innerHTML = '<ul>' + names.map(name => `<li>${name}</li>`).join('') + '</ul>';
+                    if (info.names.length > 0) {
+                        dropdown.innerHTML = '<ul>' + info.names.map(name => `<li>${name}</li>`).join('') + '</ul>';
+                        if (toggleButton) {
+                            toggleButton.disabled = false;
+                        }
                     } else {
-                        const categoryName = categories.find(c => c.value === category)?.text || category;
-                        dropdown.innerHTML = `<p class="text-center text-gray-500 text-sm italic py-2">No hay personal en ${categoryName}.</p>`;
+                        dropdown.innerHTML = `<p class="text-center text-gray-500 text-sm italic py-2">${info.emptyMsg}</p>`;
+                        dropdown.style.display = 'none'; // Asegura que estén ocultos
+                        if (toggleButton) {
+                            toggleButton.disabled = true;
+                            toggleButton.textContent = 'Mostrar'; // Restablecer texto si estaba Plegar
+                        }
                     }
-                    dropdown.style.display = 'none'; // Aseguramos que estén ocultos por defecto
+                    // For full detail dropdowns, ensure they are hidden by default after update
+                    if (info.id.includes('-full')) {
+                        dropdown.style.display = 'none';
+                    }
                 });
 
+                // Update toggle button text based on current display state
                 document.querySelectorAll('.toggle-btn').forEach(btn => {
                     const targetId = btn.dataset.target;
                     const dropdown = document.getElementById(targetId);
@@ -986,24 +964,23 @@
             }
 
             function downloadSummaryAsImage() {
-                // Elementos que deben ocultarse para la captura
+                // Seleccionar todos los elementos que no deben aparecer en la captura
                 const elementsToHideForCapture = [
                     document.querySelector('.filter-section'),
                     document.getElementById('personnel-grid'),
                     document.querySelector('.add-person-section'),
-                    document.getElementById('download-summary-btn') // Ocultar el propio botón de descarga
-                ].filter(Boolean); // Filtrar elementos que puedan ser null
+                    document.getElementById('download-summary-btn'),
+                    editStatusPopover // También ocultar el popover si estuviera abierto
+                ].filter(Boolean); // Filtrar nulls si algún elemento no existe
 
                 elementsToHideForCapture.forEach(el => el.classList.add('hide-for-capture'));
 
-                // Asegurarse de que el input del título se muestre como texto normal para la captura
+                // Guardar y modificar el estado del input del título temporalmente para la captura
                 const originalTitleInputState = {
-                    display: departmentTitleInput.style.display,
                     readOnly: departmentTitleInput.readOnly,
                     cursor: departmentTitleInput.style.cursor,
                     outline: departmentTitleInput.style.outline
                 };
-                departmentTitleInput.style.display = 'block';
                 departmentTitleInput.readOnly = true;
                 departmentTitleInput.style.cursor = 'default';
                 departmentTitleInput.style.outline = 'none';
@@ -1015,7 +992,7 @@
                     fullDetailSection.style.display = 'block';
                 }
 
-                // Asegurarse de que todos los dropdowns relevantes estén visibles y expandidos para la captura
+                // Asegurarse de que todos los dropdowns de resumen estén visibles y expandidos para la captura
                 const dropdownsToExpandForCapture = [
                     'forman-dropdown',
                     'conmotivo-dropdown',
@@ -1042,11 +1019,13 @@
                     }
                 });
 
-                // Captura el contenedor principal, que ahora incluye el header y el resumen
-                html2canvas(mainContentToCapture, {
-                    scale: 2,
+                // Captura el body completo (que ahora tiene el ID 'full-page-content-to-capture')
+                html2canvas(fullPageContentToCapture, {
+                    scale: 2, // Mayor escala para mejor calidad de imagen
                     logging: false,
                     useCORS: true,
+                    windowWidth: document.documentElement.scrollWidth, // Capturar el ancho completo de la página
+                    windowHeight: document.documentElement.scrollHeight // Capturar la altura completa de la página
                 }).then(canvas => {
                     const link = document.createElement('a');
                     link.download = `${departmentTitleInput.value.replace(/[^a-z0-9]/gi, '_')}_${new Date().toLocaleDateString('es-CL').replace(/\//g, '-')}.png`;
@@ -1059,9 +1038,20 @@
                     console.error('Error al generar la imagen del resumen:', error);
                     alert('Hubo un error al generar la imagen del resumen.');
                 }).finally(() => {
-                    // Restaurar la visibilidad y propiedades de los elementos y dropdowns
+                    // Restaurar la visibilidad de los elementos ocultos
                     elementsToHideForCapture.forEach(el => el.classList.remove('hide-for-capture'));
 
+                    // Restaurar el estado del input del título
+                    departmentTitleInput.readOnly = originalTitleInputState.readOnly;
+                    departmentTitleInput.style.cursor = originalTitleInputState.cursor;
+                    departmentTitleInput.style.outline = originalTitleInputState.outline;
+                    
+                    // Restaurar la sección de detalle completo si estaba oculta
+                    if (wasFullDetailSectionHidden && fullDetailSection) {
+                        fullDetailSection.style.display = 'none';
+                    }
+
+                    // Restaurar el estado original de los dropdowns
                     dropdownsToExpandForCapture.forEach(id => {
                         const dropdown = document.getElementById(id);
                         if (dropdown && originalDropdownStates[id]) {
@@ -1070,17 +1060,8 @@
                             dropdown.style.overflow = originalDropdownStates[id].overflow;
                         }
                     });
-
-                    // Restaurar el estado del input del título
-                    departmentTitleInput.style.display = originalTitleInputState.display;
-                    departmentTitleInput.readOnly = originalTitleInputState.readOnly;
-                    departmentTitleInput.style.cursor = originalTitleInputState.cursor;
-                    departmentTitleInput.style.outline = originalTitleInputState.outline;
                     
-                    if (wasFullDetailSectionHidden && fullDetailSection) {
-                        fullDetailSection.style.display = 'none';
-                    }
-                    
+                    // Asegurarse de que los botones de toggle reflejen el estado actual de los dropdowns
                     document.querySelectorAll('.toggle-btn').forEach(btn => {
                         const targetId = btn.dataset.target;
                         const dropdown = document.getElementById(targetId);
