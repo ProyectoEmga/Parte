@@ -37,9 +37,6 @@
             width: 95%;
             max-width: 1024px;
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
         @media (min-width: 768px) {
             .container-armada { width: 75%; }
@@ -54,54 +51,60 @@
         /* Estilos para las tarjetas de personal */
         #personnel-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* 140px min width */
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 1rem;
             margin-top: 1.5rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid #e2e8f0;
-            width: 100%; /* Asegura que la grilla ocupe el ancho del contenedor */
         }
         .person-card {
-            background-color: #e0e7ff; /* Fondo azul claro */
+            background-color: #e0e7ff;
             border: 1px solid #a7baff;
             border-radius: 0.5rem;
             padding: 0.75rem;
-            text-align: center;
-            cursor: pointer;
+            text-align: left;
+            cursor: default; /* Changed to default as click is for switch */
             position: relative;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Empuja el estado hacia abajo */
-            min-height: 90px; /* Altura mínima para las tarjetas */
+            justify-content: space-between;
+            min-height: 100px;
         }
         .person-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        .person-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
         .person-card-name {
             font-weight: bold;
             color: #003366;
-            margin-bottom: 0.25rem;
             line-height: 1.2;
-            flex-grow: 1; /* Permite que el nombre ocupe espacio */
+            flex-grow: 1;
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* Limita el nombre a 2 líneas si es muy largo */
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-size: 0.95rem;
         }
-        .person-card-status {
+        .person-card-status-text {
             font-size: 0.75rem;
             color: #4a5568;
-            background-color: #c3daff; /* Fondo más claro para el estado */
+            background-color: #c3daff;
             padding: 0.2rem 0.4rem;
             border-radius: 0.25rem;
-            margin-top: 0.5rem; /* Espacio arriba del estado */
-            white-space: nowrap; /* Evita que el estado se rompa en varias líneas */
+            margin-top: auto;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-align: center;
         }
         .remove-card-btn {
             position: absolute;
@@ -120,13 +123,51 @@
             cursor: pointer;
             opacity: 0.8;
             transition: opacity 0.2s, background-color 0.2s;
-            line-height: 1; /* Asegura que la 'X' esté centrada */
+            line-height: 1;
             padding: 0;
+            z-index: 10;
         }
         .remove-card-btn:hover {
             opacity: 1;
             background-color: #c82333;
         }
+
+        /* Estilos del Switch de 3 estados */
+        .status-switch {
+            width: 60px;
+            height: 28px;
+            background-color: #6c757d; /* Default gray track */
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            flex-shrink: 0;
+            margin-left: 0.5rem;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .switch-handle {
+            width: 24px;
+            height: 24px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            transition: transform 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Estados del Switch */
+        .status-switch[data-state="green"] { background-color: #28a745; }
+        .status-switch[data-state="green"] .switch-handle { transform: translateX(32px); } /* Right for green */
+
+        .status-switch[data-state="red"] { background-color: #dc3545; }
+        .status-switch[data-state="red"] .switch-handle { transform: translateX(18px); } /* Center for red */
+
+        .status-switch[data-state="gray"] { background-color: #6c757d; }
+        .status-switch[data-state="gray"] .switch-handle { transform: translateX(0); } /* Left for gray */
 
         /* Estilos del Popover/Modal de edición */
         .popover-overlay {
@@ -233,10 +274,9 @@
             padding: 1.5rem;
             margin-top: 2rem;
             text-align: center;
-            width: 100%; /* Asegura que el resumen ocupe el ancho del contenedor */
         }
         .summary-section {
-            padding: 1rem 0; /* Aumentado padding para más espacio */
+            padding: 1rem;
             border-bottom: 1px dotted #cce0f5;
             text-align: left;
         }
@@ -244,40 +284,73 @@
             border-bottom: none;
         }
         .summary-section h4 {
-            font-size: 1.125rem; /* Ajuste para consistencia */
-            color: #2d3748; /* Color un poco más oscuro */
-            margin-bottom: 0.75rem; /* Margen inferior para el título de sección */
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.125rem;
+            color: #2d3748;
         }
         .summary-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.5rem 0; /* Aumentado padding vertical */
+            padding: 0.5rem 0;
         }
         .summary-item span:first-child {
             font-weight: bold;
             color: #003366;
-            flex-grow: 1; /* Permite que el texto del nombre ocupe más espacio */
+            flex-grow: 1;
         }
         .summary-item span:last-child {
             font-weight: bold;
             color: #003366;
-            font-size: 1.1rem; /* Ligeramente más grande para los totales */
-            min-width: 25px; /* Ancho mínimo para alinear números */
+            font-size: 1.1rem;
+            min-width: 25px;
             text-align: right;
         }
+
+        /* Estilos para el nuevo cuadro de Visión General */
+        #overall-summary-display {
+            background-color: #dbeafe; /* Light blue background */
+            border: 1px solid #93c5fd;
+            border-radius: 6px;
+            padding: 1rem 1.5rem; /* More padding */
+            margin-bottom: 1.5rem; /* Space before next section */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        }
+        #overall-summary-display h4 {
+            color: #1e3a8a; /* Darker blue for heading */
+            font-size: 1.25rem; /* Larger heading */
+            margin-bottom: 1.25rem;
+        }
+        #overall-summary-display .summary-item {
+            padding: 0.6rem 0; /* More vertical padding */
+            border-bottom: 1px dotted #a7c8f0; /* Lighter dotted border */
+        }
+        #overall-summary-display .summary-item:last-child {
+            border-bottom: none;
+        }
+        #overall-summary-display .summary-item span:first-child {
+            font-size: 1.05rem; /* Slightly larger text for labels */
+            color: #003366;
+        }
+        #overall-summary-display .summary-item span:last-child {
+            font-size: 1.3rem; /* Larger font for counts */
+            color: #003366;
+            font-weight: bold;
+        }
+
 
         /* Estilos específicos para el desglose con dropdowns */
         .summary-item.with-dropdown {
             flex-direction: column;
             align-items: flex-start;
-            padding: 0.75rem 0; /* Un poco más de padding */
+            padding: 0.75rem 0;
         }
         .summary-item.with-dropdown > span:first-child {
             width: 100%;
             margin-bottom: 0.5rem;
-            font-size: 1rem; /* Ajuste para el título del desglose */
-            text-align: left; /* Alinea el título del desglose a la izquierda */
+            font-size: 1rem;
+            text-align: left;
         }
         @media (min-width: 640px) {
             .summary-item.with-dropdown {
@@ -290,20 +363,18 @@
             }
         }
         .personnel-dropdown {
-            font-size: 0.8rem; /* Ligeramente más grande para los nombres */
+            font-size: 0.8rem;
             color: #4a5568;
-            margin-top: 0.5rem; /* Más espacio arriba del cuadro de nombres */
-            padding: 0.75rem; /* Más padding interno */
+            margin-top: 0.25rem;
+            padding: 0.75rem;
             background-color: #f9fbfd;
             border-radius: 4px;
             border: 1px solid #e2e8f0;
             display: none;
-            line-height: 1.5; /* Mayor espaciado entre líneas */
-            max-height: 180px; /* Altura máxima ligeramente mayor */
+            line-height: 1.5;
+            max-height: 180px;
             overflow-y: auto;
             flex-grow: 1;
-            width: 100%; /* Asegura que ocupe todo el ancho disponible */
-            text-align: left; /* Alinea el texto a la izquierda dentro del dropdown */
         }
         .personnel-dropdown ul {
             list-style: none;
@@ -311,8 +382,8 @@
             margin: 0;
         }
         .personnel-dropdown li {
-            padding: 0.15rem 0; /* Más espacio entre nombres */
-            border-bottom: 1px dotted #ebf1f7; /* Borde sutil entre nombres */
+            padding: 0.15rem 0;
+            border-bottom: 1px dotted #ebf1f7;
         }
         .personnel-dropdown li:last-child {
             border-bottom: none;
@@ -328,7 +399,6 @@
             flex-direction: column;
             gap: 1rem;
             align-items: stretch;
-            width: 100%; /* Asegura que la sección ocupe el ancho del contenedor */
         }
         @media (min-width: 640px) {
             .add-person-section {
@@ -336,7 +406,7 @@
                 align-items: center;
             }
         }
-        .add-person-section input, .filter-section select {
+        .add-person-section input {
             flex-grow: 1;
             padding: 0.5rem;
             border: 1px solid #cbd5e0;
@@ -362,199 +432,123 @@
         .button-armada:hover {
             background-color: #0056b3;
         }
-
-        /* Clase para ocultar elementos temporalmente durante la captura */
-        .hide-for-capture {
+        
+        /* Ocultar elementos para la captura de imagen */
+        .no-capture {
             display: none !important;
-        }
-
-        /* Estilo para el botón de toggle */
-        .toggle-btn {
-            background: none;
-            border: none;
-            font-size: 0.85rem; /* Ajuste de tamaño */
-            color: #003366;
-            cursor: pointer;
-            margin-left: 0.75rem; /* Más margen */
-            font-weight: normal;
-            padding: 0.25rem 0.5rem; /* Pequeño padding para área de clic */
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        .toggle-btn:hover:not(:disabled) {
-            background-color: #cce0f5;
-        }
-        .toggle-btn:disabled {
-            color: #a0aec0;
-            cursor: not-allowed;
-        }
-        .summary-header-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-        /* Estilos para los títulos principales en el contenedor */
-        .container-armada h2 {
-            margin-bottom: 1.5rem; /* Espacio debajo del título principal */
-            width: 100%; /* Asegura que el título ocupe el ancho del contenedor */
-            text-align: center;
-        }
-        .summary-box h3 {
-            margin-bottom: 1.5rem; /* Espacio debajo del título del resumen */
-            text-align: center;
-        }
-
-        /* Estilos para la sección de filtro y búsqueda */
-        .filter-section {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-top: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-            width: 100%; /* Asegura que la sección ocupe el ancho del contenedor */
-        }
-        @media (min-width: 640px) {
-            .filter-section {
-                flex-direction: row;
-                align-items: center;
-            }
-        }
-        .filter-section input, .filter-section select {
-            flex-grow: 1;
-        }
-        .title-input {
-            width: 100%;
-            font-size: 2.25rem; /* text-3xl */
-            font-weight: bold;
-            text-align: center;
-            background: none;
-            border: none;
-            color: #ffffff;
-            padding: 0;
-            margin: 0;
-            line-height: 1.2;
-            cursor: pointer;
-        }
-        .title-input:hover {
-            text-decoration: underline;
-        }
-        .title-input:focus {
-            outline: 2px solid #ffcc00;
-            outline-offset: 2px;
-            border-radius: 4px;
-            cursor: text;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center" id="full-page-content-to-capture"> 
+<body class="min-h-screen flex flex-col items-center">
     <header class="header-armada w-full">
-        <input type="text" id="department-title-input" class="title-input" value="Parte Dpto. Finanzas y Abastecimiento EMGA 2025">
+        <h1 class="text-3xl font-bold">Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
         <div class="last-updated" id="last-updated"></div>
     </header>
 
-    <div class="container-armada mt-8 mb-8"> <h2 class="text-2xl font-semibold text-gray-800">Estado del Personal</h2>
-
-        <div class="filter-section">
-            <input type="text" id="search-input" placeholder="Buscar personal por nombre...">
-            <select id="status-filter" class="w-full sm:w-auto">
-                <option value="all">Todos los estados</option>
-                <option value="forman">Forman</option>
-                <option value="conmotivo">Con motivo</option>
-                <option value="">Sin motivo</option>
-                <option value="alto mando">Alto mando</option>
-                <option value="en trabajos">En trabajos</option>
-                <option value="en comisión">En comisión</option>
-                <option value="de baja">De baja</option>
-                <option value="con permiso">Con permiso</option>
-            </select>
-        </div>
+    <div class="container-armada mt-8 mb-8">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800">Estado del Personal</h2>
 
         <div id="personnel-grid">
+            <!-- Las tarjetas de personal se renderizarán aquí -->
         </div>
 
         <div class="add-person-section">
-            <input type="text" id="new-person-name" placeholder="Escriba el nombre completo de la persona a agregar">
+            <input type="text" id="new-person-name" placeholder="Ingrese nuevo nombre de persona">
             <button type="button" id="add-person-btn" class="button-armada">Agregar Persona</button>
         </div>
 
-        <div class="summary-box">
-            <h3 class="text-xl font-semibold text-gray-800">Resumen General</h3>
+        <div class="summary-box" id="summary-box-to-capture">
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Resumen General</h3>
 
-            <div class="summary-section">
+            <!-- Nuevo Cuadro de resumen general de cantidades -->
+            <div class="summary-section" id="overall-summary-display">
+                <h4 class="text-lg font-semibold mb-2 text-gray-700">Visión General</h4>
                 <div class="summary-item">
-                    <span>Fuerza Efectiva:</span>
-                    <span id="effective-force-count">0</span>
+                    <span>Fuerza efectiva:</span>
+                    <span id="overall-effective-force-count">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Forman (A bordo):</span>
+                    <span id="overall-forman-count">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Con motivo:</span>
+                    <span id="overall-con-motivo-count">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Sin motivo:</span>
+                    <span id="overall-sin-motivo-count">0</span>
                 </div>
             </div>
 
-            <div class="summary-section">
-                <div class="summary-item with-dropdown">
-                    <div class="summary-header-item">
-                        <span>Forman:</span>
-                        <span id="forman-count-num">0</span>
-                        <button class="toggle-btn" data-target="forman-dropdown">Mostrar</button>
-                    </div>
-                    <div class="personnel-dropdown" id="forman-dropdown"></div>
+            <!-- Cuadro de resumen de cantidades por categoría (existente) -->
+            <div class="summary-section mt-6" id="summary-counts-display">
+                <h4 class="text-lg font-semibold mb-2 text-gray-700">Cantidades por Categoría</h4>
+                <div class="summary-item">
+                    <span>Alto mando:</span>
+                    <span id="altomando-count-num">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>A bordo:</span>
+                    <span id="abordo-count-num">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>En trabajos:</span>
+                    <span id="trabajos-count-num">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>En comisión:</span>
+                    <span id="comision-count-num">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>De baja:</span>
+                    <span id="baja-count-num">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Con permiso:</span>
+                    <span id="permiso-count-num">0</span>
                 </div>
             </div>
 
-            <div class="summary-section">
-                <div class="summary-item with-dropdown">
-                    <div class="summary-header-item">
-                        <span>Con motivo:</span>
-                        <span id="conmotivo-count-num">0</span>
-                        <button class="toggle-btn" data-target="conmotivo-dropdown">Mostrar</button>
-                    </div>
-                    <div class="personnel-dropdown" id="conmotivo-dropdown"></div>
-                </div>
-            </div>
-
-            <div class="summary-section">
-                <div class="summary-item with-dropdown">
-                    <div class="summary-header-item">
-                        <span>Sin motivo:</span>
-                        <span id="sinmotivo-count-num">0</span>
-                        <button class="toggle-btn" data-target="sinmotivo-dropdown">Mostrar</button>
-                    </div>
-                    <div class="personnel-dropdown" id="sinmotivo-dropdown"></div>
-                </div>
-            </div>
-
-            <div class="summary-section mt-6" id="full-detail-section" style="display: none;">
-                <h4 class="text-lg font-semibold text-gray-700">Detalle Completo por Categoría</h4>
+            <!-- Cuadro de desglose con nombres (existente) -->
+            <div class="summary-section mt-6" id="summary-details-display">
+                <h4 class="text-lg font-semibold mb-2 text-gray-700">Detalle por Categoría</h4>
                 <div class="summary-item with-dropdown">
                     <span>Alto mando:</span>
-                    <div class="personnel-dropdown" id="altomando-dropdown-full"></div>
+                    <div class="personnel-dropdown" id="altomando-dropdown"></div>
+                </div>
+                <div class="summary-item with-dropdown">
+                    <span>A bordo:</span>
+                    <div class="personnel-dropdown" id="abordo-dropdown"></div>
                 </div>
                 <div class="summary-item with-dropdown">
                     <span>En trabajos:</span>
-                    <div class="personnel-dropdown" id="trabajos-dropdown-full"></div>
+                    <div class="personnel-dropdown" id="trabajos-dropdown"></div>
                 </div>
                 <div class="summary-item with-dropdown">
                     <span>En comisión:</span>
-                    <div class="personnel-dropdown" id="comision-dropdown-full"></div>
+                    <div class="personnel-dropdown" id="comision-dropdown"></div>
                 </div>
                 <div class="summary-item with-dropdown">
                     <span>De baja:</span>
-                    <div class="personnel-dropdown" id="baja-dropdown-full"></div>
+                    <div class="personnel-dropdown" id="baja-dropdown"></div>
                 </div>
                 <div class="summary-item with-dropdown">
                     <span>Con permiso:</span>
-                    <div class="personnel-dropdown" id="permiso-dropdown-full"></div>
+                    <div class="personnel-dropdown" id="permiso-dropdown"></div>
                 </div>
             </div>
         </div>
         <button type="button" id="download-summary-btn" class="button-armada mt-6 w-full bg-green-600 hover:bg-green-700">Descargar Resumen como Imagen</button>
     </div>
 
+    <!-- Popover de edición de estado (oculto por defecto) -->
     <div class="popover-overlay" id="edit-status-popover">
         <div class="popover-content">
             <button class="popover-close-btn" id="popover-close-btn">&times;</button>
             <h4 id="popover-person-name"></h4>
             <select id="popover-status-select">
-                <option value="">Seleccione estado</option>
+                <!-- Opciones de estado se cargarán aquí -->
             </select>
             <div class="button-group">
                 <button class="save-btn" id="popover-save-btn">Guardar</button>
@@ -570,10 +564,7 @@
             const newPersonNameInput = document.getElementById('new-person-name');
             const lastUpdatedElement = document.getElementById('last-updated');
             const downloadSummaryBtn = document.getElementById('download-summary-btn');
-            
-            // EL CONTENEDOR PRINCIPAL A CAPTURAR AHORA ES EL BODY
-            const fullPageContentToCapture = document.getElementById('full-page-content-to-capture'); 
-            const fullDetailSection = document.getElementById('full-detail-section');
+            const summaryBoxToCapture = document.getElementById('summary-box-to-capture');
 
             const editStatusPopover = document.getElementById('edit-status-popover');
             const popoverCloseBtn = document.getElementById('popover-close-btn');
@@ -582,13 +573,8 @@
             const popoverPersonName = document.getElementById('popover-person-name');
             const popoverStatusSelect = document.getElementById('popover-status-select');
 
-            const searchInput = document.getElementById('search-input');
-            const statusFilterSelect = document.getElementById('status-filter');
-            const departmentTitleInput = document.getElementById('department-title-input');
-
             const personnelDataKey = 'personnelDataEmga2025';
             const lastUpdatedKey = 'lastUpdatedEmga2025';
-            const departmentTitleKey = 'departmentTitleEmga2025';
 
             let personnel = [];
             let currentEditingPersonId = null;
@@ -602,8 +588,6 @@
                 'S1 CARLOS ALARCÓN',
                 'S1 JORGE ESPINOZA',
                 'S1 CARLOS JIMÉNEZ',
-                'S1 ROBERTO ALEGRIA',
-                'S1 MARCOS ERAZO',
                 'S1 GREGORY FUENTES',
                 'S2 GABRIEL CLAVERÍA',
                 'S2 JOSUÉ RAÍN',
@@ -612,19 +596,25 @@
                 'TT PEDRO VERDUGO'
             ];
 
+            // Definición de categorías con su tipo de switch
             const categories = [
-                { value: '', text: 'Sin motivo' },
-                { value: 'alto mando', text: 'Alto mando' },
-                { value: 'forman', text: 'Forman' },
-                { value: 'en trabajos', text: 'En trabajos' },
-                { value: 'en comisión', text: 'En comisión' },
-                { value: 'de baja', text: 'De baja' },
-                { value: 'con permiso', text: 'Con permiso' }
+                { value: 'A bordo', text: 'A bordo', type: 'green' },
+                { value: 'Sin motivo', text: 'Sin motivo', type: 'gray' },
+                { value: 'Alto mando', text: 'Alto mando', type: 'red' },
+                { value: 'En trabajos', text: 'En trabajos', type: 'red' },
+                { value: 'En comisión', text: 'En comisión', type: 'red' },
+                { value: 'De baja', text: 'De baja', type: 'red' },
+                { value: 'Con permiso', text: 'Con permiso', type: 'red' }
             ];
 
-            function populatePopoverCategories() {
-                popoverStatusSelect.innerHTML = '<option value="">Seleccione estado</option>';
-                categories.forEach(cat => {
+            const greenStatus = 'A bordo';
+            const grayStatus = 'Sin motivo';
+            const redCategories = categories.filter(cat => cat.type === 'red');
+
+            // Rellenar el selector del popover con las categorías "rojas"
+            function populatePopoverRedCategories() {
+                popoverStatusSelect.innerHTML = ''; // Limpiar opciones existentes
+                redCategories.forEach(cat => {
                     const option = document.createElement('option');
                     option.value = cat.value;
                     option.textContent = cat.text;
@@ -655,30 +645,30 @@
                         personnel = [];
                         initialPersonnelNames.forEach(name => {
                             if (loadedPersonnelMap.has(name)) {
-                                const person = loadedPersonnelMap.get(name);
-                                if (person.status === 'a bordo') {
-                                    person.status = 'forman';
-                                }
-                                personnel.push(person);
+                                personnel.push(loadedPersonnelMap.get(name));
                                 loadedPersonnelMap.delete(name);
                             } else {
-                                personnel.push({ id: generateId(), name: name, status: '' });
+                                // Default new initial personnel to 'A bordo' (green)
+                                personnel.push({ id: generateId(), name: name, status: greenStatus });
                             }
                         });
 
+                        // Add any additional personnel that were not in the initial list
                         loadedPersonnel.forEach(p => {
                             if (!initialPersonnelNames.includes(p.name)) {
-                                if (p.status === 'a bordo') {
-                                    p.status = 'forman';
+                                // Ensure loaded personnel have a valid status, default to 'A bordo' if not set
+                                if (!p.status || !categories.some(cat => cat.value === p.status)) {
+                                    p.status = greenStatus;
                                 }
                                 personnel.push(p);
                             }
                         });
                     } else {
+                        // If no data saved, initialize all to 'A bordo' (green)
                         personnel = initialPersonnelNames.map(name => ({
                             id: generateId(),
                             name: name,
-                            status: ''
+                            status: greenStatus
                         }));
                     }
                 } catch (error) {
@@ -686,7 +676,7 @@
                     personnel = initialPersonnelNames.map(name => ({
                         id: generateId(),
                         name: name,
-                        status: ''
+                        status: greenStatus
                     }));
                 }
                 renderPersonnelGrid();
@@ -705,10 +695,9 @@
                     hour12: false
                 };
                 try {
-                    // Formato específico para Chile
                     const formattedDate = new Intl.DateTimeFormat('es-CL', {
                         ...options,
-                        timeZone: 'America/Santiago' // Zona horaria de Chile Continental
+                        timeZone: 'America/Santiago'
                     }).format(now);
                     lastUpdatedElement.textContent = `Última actualización: ${formattedDate}`;
                     localStorage.setItem(lastUpdatedKey, formattedDate);
@@ -724,30 +713,11 @@
                     if (storedTime) {
                         lastUpdatedElement.textContent = `Última actualización: ${storedTime}`;
                     } else {
-                        updateLastUpdatedTime(); // Si no hay tiempo guardado, establecerlo ahora
+                        lastUpdatedElement.textContent = 'Última actualización: Nunca';
                     }
                 } catch (error) {
                     console.warn('Error al cargar tiempo:', error);
                     lastUpdatedElement.textContent = 'Última actualización: Nunca';
-                }
-            }
-
-            function saveDepartmentTitle(title) {
-                try {
-                    localStorage.setItem(departmentTitleKey, title);
-                } catch (error) {
-                    console.warn('No se pudo guardar el título del departamento:', error);
-                }
-            }
-
-            function loadDepartmentTitle() {
-                try {
-                    const storedTitle = localStorage.getItem(departmentTitleKey);
-                    if (storedTitle) {
-                        departmentTitleInput.value = storedTitle;
-                    }
-                } catch (error) {
-                    console.warn('Error al cargar el título del departamento:', error);
                 }
             }
 
@@ -764,59 +734,72 @@
                     removePerson(person.id);
                 });
 
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'person-card-header';
+
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'person-card-name';
                 nameDiv.textContent = person.name;
 
-                let displayStatus = 'Sin motivo';
-                if (person.status === 'forman') {
-                    displayStatus = 'A bordo';
-                } else if (person.status !== '') {
-                    displayStatus = categories.find(cat => cat.value === person.status)?.text || 'Sin estado';
-                }
-                
-                const statusDiv = document.createElement('div');
-                statusDiv.className = 'person-card-status';
-                statusDiv.textContent = displayStatus;
+                const statusSwitch = document.createElement('div');
+                statusSwitch.className = 'status-switch';
+                const currentStatusType = categories.find(cat => cat.value === person.status)?.type || 'gray';
+                statusSwitch.dataset.state = currentStatusType;
+
+                const switchHandle = document.createElement('div');
+                switchHandle.className = 'switch-handle';
+                statusSwitch.appendChild(switchHandle);
+
+                statusSwitch.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click from firing
+                    toggleSwitchState(person.id);
+                });
+
+                headerDiv.appendChild(nameDiv);
+                headerDiv.appendChild(statusSwitch);
+
+                const statusTextDiv = document.createElement('div');
+                statusTextDiv.className = 'person-card-status-text';
+                statusTextDiv.textContent = person.status;
 
                 card.appendChild(removeBtn);
-                card.appendChild(nameDiv);
-                card.appendChild(statusDiv);
-
-                card.addEventListener('click', () => openEditPopover(person));
+                card.appendChild(headerDiv);
+                card.appendChild(statusTextDiv);
 
                 return card;
             }
 
             function renderPersonnelGrid() {
                 personnelGrid.innerHTML = '';
-                const searchTerm = searchInput.value.toLowerCase();
-                const filterStatus = statusFilterSelect.value;
-
-                const filteredPersonnel = personnel.filter(person => {
-                    const matchesSearch = person.name.toLowerCase().includes(searchTerm);
-                    
-                    let matchesFilterStatus = true;
-                    if (filterStatus === 'forman') {
-                        matchesFilterStatus = person.status === 'forman';
-                    } else if (filterStatus === 'conmotivo') {
-                        matchesFilterStatus = ['alto mando', 'en trabajos', 'en comisión', 'de baja', 'con permiso'].includes(person.status);
-                    } else if (filterStatus === '') { // Filtra por "Sin motivo"
-                        matchesFilterStatus = person.status === '';
-                    } else if (filterStatus !== 'all') {
-                        matchesFilterStatus = person.status === filterStatus;
-                    }
-                    return matchesSearch && matchesFilterStatus;
+                personnel.forEach(person => {
+                    personnelGrid.appendChild(createPersonCard(person));
                 });
-
-                if (filteredPersonnel.length === 0) {
-                    personnelGrid.innerHTML = '<p class="text-center text-gray-500 mt-4 col-span-full">No se encontraron personas con los criterios de búsqueda o filtro.</p>';
-                } else {
-                    filteredPersonnel.forEach(person => {
-                        personnelGrid.appendChild(createPersonCard(person));
-                    });
-                }
                 updateSummary();
+            }
+
+            function toggleSwitchState(personId) {
+                const person = personnel.find(p => p.id === personId);
+                if (!person) return;
+
+                const currentStatus = person.status;
+
+                if (currentStatus === greenStatus) {
+                    // Verde -> Rojo (abre popover para elegir motivo)
+                    person.status = redCategories[0].value; // Establece un motivo rojo por defecto temporalmente
+                    savePersonnelData(); // Guarda el estado temporal
+                    renderPersonnelGrid(); // Actualiza la UI para mostrar el switch en rojo
+                    openEditPopover(person); // Abre el popover para que el usuario elija el motivo real
+                } else if (redCategories.some(cat => cat.value === currentStatus)) {
+                    // Rojo -> Gris
+                    person.status = grayStatus;
+                    savePersonnelData();
+                    renderPersonnelGrid();
+                } else if (currentStatus === grayStatus) {
+                    // Gris -> Verde
+                    person.status = greenStatus;
+                    savePersonnelData();
+                    renderPersonnelGrid();
+                }
             }
 
             function addPerson() {
@@ -830,7 +813,7 @@
                     const newPerson = {
                         id: generateId(),
                         name: name,
-                        status: ''
+                        status: greenStatus // Default new person to 'A bordo' (green)
                     };
                     personnel.push(newPerson);
                     newPersonNameInput.value = '';
@@ -852,11 +835,27 @@
             function openEditPopover(person) {
                 currentEditingPersonId = person.id;
                 popoverPersonName.textContent = person.name;
-                popoverStatusSelect.value = person.status;
+                // Pre-seleccionar el motivo actual si es una categoría roja, si no, la primera opción roja
+                if (redCategories.some(cat => cat.value === person.status)) {
+                    popoverStatusSelect.value = person.status;
+                } else {
+                    popoverStatusSelect.value = redCategories[0]?.value || '';
+                }
                 editStatusPopover.classList.add('visible');
             }
 
-            function closeEditPopover() {
+            function closeEditPopover(wasCanceled) {
+                if (wasCanceled && currentEditingPersonId) {
+                    const person = personnel.find(p => p.id === currentEditingPersonId);
+                    if (person) {
+                        // Si se cancela desde el estado rojo, se revierte a gris
+                        if (redCategories.some(cat => cat.value === person.status)) {
+                            person.status = grayStatus;
+                            savePersonnelData();
+                            renderPersonnelGrid();
+                        }
+                    }
+                }
                 editStatusPopover.classList.remove('visible');
                 currentEditingPersonId = null;
             }
@@ -870,208 +869,129 @@
                         renderPersonnelGrid();
                     }
                 }
-                closeEditPopover();
+                closeEditPopover(false); // No revertir a gris si se guardó
             }
 
             function updateSummary() {
-                const effectiveForceCount = personnel.length;
-                let formanPersonnel = [];
-                let conMotivoPersonnel = [];
-                let sinMotivoPersonnel = [];
-                const personnelByFullCategory = {
-                    'alto mando': [],
-                    'en trabajos': [],
-                    'en comisión': [],
-                    'de baja': [],
-                    'con permiso': []
+                const counts = {
+                    'effectiveForce': personnel.length,
+                    'Alto mando': 0,
+                    'A bordo': 0,
+                    'En trabajos': 0,
+                    'En comisión': 0,
+                    'De baja': 0,
+                    'Con permiso': 0,
+                    'Sin motivo': 0 // Add 'Sin motivo' to counts
+                };
+
+                const personnelByCategory = {
+                    'Alto mando': [],
+                    'A bordo': [],
+                    'En trabajos': [],
+                    'En comisión': [],
+                    'De baja': [],
+                    'Con permiso': [],
+                    'Sin motivo': [] // Add 'Sin motivo' to personnelByCategory
                 };
 
                 personnel.forEach(person => {
-                    const status = person.status;
-                    if (status === 'forman') {
-                        formanPersonnel.push(person.name);
-                    } else if (['alto mando', 'en trabajos', 'en comisión', 'de baja', 'con permiso'].includes(status)) {
-                        conMotivoPersonnel.push(person.name);
-                        personnelByFullCategory[status].push(person.name);
-                    } else if (status === '') {
-                        sinMotivoPersonnel.push(person.name);
+                    if (person.status === greenStatus) {
+                        counts['A bordo']++;
+                        personnelByCategory['A bordo'].push(person.name);
+                    } else if (redCategories.some(cat => cat.value === person.status)) {
+                        counts[person.status]++;
+                        personnelByCategory[person.status].push(person.name);
+                    } else if (person.status === grayStatus) {
+                        counts['Sin motivo']++;
+                        personnelByCategory['Sin motivo'].push(person.name);
                     }
                 });
 
-                document.getElementById('effective-force-count').textContent = effectiveForceCount;
-                document.getElementById('forman-count-num').textContent = formanPersonnel.length;
-                document.getElementById('conmotivo-count-num').textContent = conMotivoPersonnel.length;
-                document.getElementById('sinmotivo-count-num').textContent = sinMotivoPersonnel.length;
+                // Update Overall Summary Display
+                document.getElementById('overall-effective-force-count').textContent = counts.effectiveForce;
+                document.getElementById('overall-forman-count').textContent = counts['A bordo'];
+                document.getElementById('overall-con-motivo-count').textContent = redCategories.reduce((sum, cat) => sum + (counts[cat.value] || 0), 0);
+                document.getElementById('overall-sin-motivo-count').textContent = counts['Sin motivo'];
 
-                const dropdownsInfo = [
-                    { id: 'forman-dropdown', names: formanPersonnel, toggleBtnSelector: '[data-target="forman-dropdown"]', emptyMsg: 'No hay personal en Forman.' },
-                    { id: 'conmotivo-dropdown', names: conMotivoPersonnel, toggleBtnSelector: '[data-target="conmotivo-dropdown"]', emptyMsg: 'No hay personal en Con motivo.' },
-                    { id: 'sinmotivo-dropdown', names: sinMotivoPersonnel, toggleBtnSelector: '[data-target="sinmotivo-dropdown"]', emptyMsg: 'No hay personal Sin motivo.' },
-                    { id: 'altomando-dropdown-full', names: personnelByFullCategory['alto mando'], emptyMsg: 'No hay personal en Alto mando.' },
-                    { id: 'trabajos-dropdown-full', names: personnelByFullCategory['en trabajos'], emptyMsg: 'No hay personal en En trabajos.' },
-                    { id: 'comision-dropdown-full', names: personnelByFullCategory['en comisión'], emptyMsg: 'No hay personal en En comisión.' },
-                    { id: 'baja-dropdown-full', names: personnelByFullCategory['de baja'], emptyMsg: 'No hay personal en De baja.' },
-                    { id: 'permiso-dropdown-full', names: personnelByFullCategory['con permiso'], emptyMsg: 'No hay personal en Con permiso.' }
-                ];
 
-                dropdownsInfo.forEach(info => {
-                    const dropdown = document.getElementById(info.id);
-                    const toggleButton = info.toggleBtnSelector ? document.querySelector(info.toggleBtnSelector) : null;
+                // Update Quantities by Category Display
+                document.getElementById('altomando-count-num').textContent = counts['Alto mando'];
+                document.getElementById('abordo-count-num').textContent = counts['A bordo'];
+                document.getElementById('trabajos-count-num').textContent = counts['En trabajos'];
+                document.getElementById('comision-count-num').textContent = counts['En comisión'];
+                document.getElementById('baja-count-num').textContent = counts['De baja'];
+                document.getElementById('permiso-count-num').textContent = counts['Con permiso'];
 
-                    if (info.names.length > 0) {
-                        dropdown.innerHTML = '<ul>' + info.names.map(name => `<li>${name}</li>`).join('') + '</ul>';
-                        if (toggleButton) {
-                            toggleButton.disabled = false;
-                        }
+                const dropdownMappings = {
+                    'Alto mando': 'altomando-dropdown',
+                    'A bordo': 'abordo-dropdown',
+                    'En trabajos': 'trabajos-dropdown',
+                    'En comisión': 'comision-dropdown',
+                    'De baja': 'baja-dropdown',
+                    'Con permiso': 'permiso-dropdown'
+                    // 'Sin motivo' is not shown in detailed dropdowns as per previous requests, but it's counted in overall
+                };
+
+                Object.keys(dropdownMappings).forEach(category => {
+                    const dropdown = document.getElementById(dropdownMappings[category]);
+                    const names = personnelByCategory[category];
+
+                    if (names.length > 0) {
+                        dropdown.innerHTML = '<ul>' + names.map(name => `<li>${name}</li>`).join('') + '</ul>';
+                        dropdown.style.display = 'block';
                     } else {
-                        dropdown.innerHTML = `<p class="text-center text-gray-500 text-sm italic py-2">${info.emptyMsg}</p>`;
-                        dropdown.style.display = 'none'; // Asegura que estén ocultos
-                        if (toggleButton) {
-                            toggleButton.disabled = true;
-                            toggleButton.textContent = 'Mostrar'; // Restablecer texto si estaba Plegar
-                        }
-                    }
-                    // For full detail dropdowns, ensure they are hidden by default after update
-                    if (info.id.includes('-full')) {
+                        dropdown.innerHTML = '';
                         dropdown.style.display = 'none';
                     }
                 });
-
-                // Update toggle button text based on current display state
-                document.querySelectorAll('.toggle-btn').forEach(btn => {
-                    const targetId = btn.dataset.target;
-                    const dropdown = document.getElementById(targetId);
-                    if (dropdown && !btn.disabled) {
-                        if (dropdown.style.display === 'block') {
-                            btn.textContent = 'Plegar';
-                        } else {
-                            btn.textContent = 'Mostrar';
-                        }
-                    }
-                });
-            }
-
-            function toggleDropdown(button) {
-                const targetId = button.dataset.target;
-                const dropdown = document.getElementById(targetId);
-                if (dropdown.style.display === 'none' || dropdown.style.display === '') {
-                    dropdown.style.display = 'block';
-                    button.textContent = 'Plegar';
-                } else {
-                    dropdown.style.display = 'none';
-                    button.textContent = 'Mostrar';
-                }
             }
 
             function downloadSummaryAsImage() {
-                // Seleccionar todos los elementos que no deben aparecer en la captura
-                const elementsToHideForCapture = [
-                    document.querySelector('.filter-section'),
-                    document.getElementById('personnel-grid'),
-                    document.querySelector('.add-person-section'),
-                    document.getElementById('download-summary-btn'),
-                    editStatusPopover // También ocultar el popover si estuviera abierto
-                ].filter(Boolean); // Filtrar nulls si algún elemento no existe
+                const elementsToHideForCapture = document.querySelectorAll('#personnel-grid, .add-person-section, #download-summary-btn, .header-armada');
+                elementsToHideForCapture.forEach(el => el.classList.add('no-capture'));
 
-                elementsToHideForCapture.forEach(el => el.classList.add('hide-for-capture'));
-
-                // Guardar y modificar el estado del input del título temporalmente para la captura
-                const originalTitleInputState = {
-                    readOnly: departmentTitleInput.readOnly,
-                    cursor: departmentTitleInput.style.cursor,
-                    outline: departmentTitleInput.style.outline
-                };
-                departmentTitleInput.readOnly = true;
-                departmentTitleInput.style.cursor = 'default';
-                departmentTitleInput.style.outline = 'none';
-                
-                // Expandir la sección de "Detalle Completo por Categoría" si está oculta
-                let wasFullDetailSectionHidden = false;
-                if (fullDetailSection && fullDetailSection.style.display === 'none') {
-                    wasFullDetailSectionHidden = true;
-                    fullDetailSection.style.display = 'block';
-                }
-
-                // Asegurarse de que todos los dropdowns de resumen estén visibles y expandidos para la captura
-                const dropdownsToExpandForCapture = [
-                    'forman-dropdown',
-                    'conmotivo-dropdown',
-                    'sinmotivo-dropdown',
-                    'altomando-dropdown-full',
-                    'trabajos-dropdown-full',
-                    'comision-dropdown-full',
-                    'baja-dropdown-full',
-                    'permiso-dropdown-full'
-                ];
-                const originalDropdownStates = {}; 
-
-                dropdownsToExpandForCapture.forEach(id => {
-                    const dropdown = document.getElementById(id);
-                    if (dropdown) {
-                        originalDropdownStates[id] = {
-                            display: dropdown.style.display,
-                            maxHeight: dropdown.style.maxHeight,
-                            overflow: dropdown.style.overflow
-                        };
-                        dropdown.style.display = 'block';
-                        dropdown.style.maxHeight = 'none';
-                        dropdown.style.overflow = 'visible';
-                    }
+                const dropdowns = document.querySelectorAll('.personnel-dropdown');
+                dropdowns.forEach(dropdown => {
+                    dropdown.style.display = 'block';
+                    dropdown.style.maxHeight = 'none';
+                    dropdown.style.overflow = 'visible';
                 });
 
-                // Captura el body completo (que ahora tiene el ID 'full-page-content-to-capture')
-                html2canvas(fullPageContentToCapture, {
-                    scale: 2, // Mayor escala para mejor calidad de imagen
+                html2canvas(summaryBoxToCapture, {
+                    scale: 2,
                     logging: false,
-                    useCORS: true,
-                    windowWidth: document.documentElement.scrollWidth, // Capturar el ancho completo de la página
-                    windowHeight: document.documentElement.scrollHeight // Capturar la altura completa de la página
+                    useCORS: true
                 }).then(canvas => {
                     const link = document.createElement('a');
-                    link.download = `${departmentTitleInput.value.replace(/[^a-z0-9]/gi, '_')}_${new Date().toLocaleDateString('es-CL').replace(/\//g, '-')}.png`;
+                    link.download = `Resumen_Personal_EMGA_${new Date().toLocaleDateString('es-CL').replace(/\//g, '-')}.png`;
                     link.href = canvas.toDataURL('image/png');
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
 
+                    elementsToHideForCapture.forEach(el => el.classList.remove('no-capture'));
+                    dropdowns.forEach(dropdown => {
+                        if (dropdown.innerHTML.trim() !== '') {
+                            dropdown.style.display = 'block';
+                        } else {
+                            dropdown.style.display = 'none';
+                        }
+                        dropdown.style.maxHeight = '150px';
+                        dropdown.style.overflowY = 'auto';
+                    });
                 }).catch(error => {
                     console.error('Error al generar la imagen del resumen:', error);
                     alert('Hubo un error al generar la imagen del resumen.');
-                }).finally(() => {
-                    // Restaurar la visibilidad de los elementos ocultos
-                    elementsToHideForCapture.forEach(el => el.classList.remove('hide-for-capture'));
-
-                    // Restaurar el estado del input del título
-                    departmentTitleInput.readOnly = originalTitleInputState.readOnly;
-                    departmentTitleInput.style.cursor = originalTitleInputState.cursor;
-                    departmentTitleInput.style.outline = originalTitleInputState.outline;
-                    
-                    // Restaurar la sección de detalle completo si estaba oculta
-                    if (wasFullDetailSectionHidden && fullDetailSection) {
-                        fullDetailSection.style.display = 'none';
-                    }
-
-                    // Restaurar el estado original de los dropdowns
-                    dropdownsToExpandForCapture.forEach(id => {
-                        const dropdown = document.getElementById(id);
-                        if (dropdown && originalDropdownStates[id]) {
-                            dropdown.style.display = originalDropdownStates[id].display;
-                            dropdown.style.maxHeight = originalDropdownStates[id].maxHeight;
-                            dropdown.style.overflow = originalDropdownStates[id].overflow;
+                    elementsToHideForCapture.forEach(el => el.classList.remove('no-capture'));
+                    const dropdowns = document.querySelectorAll('.personnel-dropdown');
+                    dropdowns.forEach(dropdown => {
+                        if (dropdown.innerHTML.trim() !== '') {
+                            dropdown.style.display = 'block';
+                        } else {
+                            dropdown.style.display = 'none';
                         }
-                    });
-                    
-                    // Asegurarse de que los botones de toggle reflejen el estado actual de los dropdowns
-                    document.querySelectorAll('.toggle-btn').forEach(btn => {
-                        const targetId = btn.dataset.target;
-                        const dropdown = document.getElementById(targetId);
-                        if (dropdown && !btn.disabled) {
-                            if (dropdown.style.display === 'block') {
-                                btn.textContent = 'Plegar';
-                            } else {
-                                btn.textContent = 'Mostrar';
-                            }
-                        }
+                        dropdown.style.maxHeight = '150px';
+                        dropdown.style.overflowY = 'auto';
                     });
                 });
             }
@@ -1087,35 +1007,19 @@
             downloadSummaryBtn.addEventListener('click', downloadSummaryAsImage);
 
             // Popover event listeners
-            popoverCloseBtn.addEventListener('click', closeEditPopover);
-            popoverCancelBtn.addEventListener('click', closeEditPopover);
+            popoverCloseBtn.addEventListener('click', () => closeEditPopover(true));
+            popoverCancelBtn.addEventListener('click', () => closeEditPopover(true));
             popoverSaveBtn.addEventListener('click', savePopoverChanges);
             editStatusPopover.addEventListener('click', (e) => {
                 if (e.target === editStatusPopover) {
-                    closeEditPopover();
+                    closeEditPopover(true);
                 }
             });
-
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('toggle-btn') && !e.target.disabled) {
-                    toggleDropdown(e.target);
-                }
-            });
-
-            // Event listeners para búsqueda y filtro
-            searchInput.addEventListener('input', renderPersonnelGrid);
-            statusFilterSelect.addEventListener('change', renderPersonnelGrid);
-
-            // Event listeners para el título del departamento
-            departmentTitleInput.addEventListener('change', (e) => saveDepartmentTitle(e.target.value));
-            departmentTitleInput.addEventListener('blur', (e) => saveDepartmentTitle(e.target.value));
-
 
             // Inicialización
-            populatePopoverCategories();
+            populatePopoverRedCategories();
             loadPersonnelData();
             loadLastUpdatedTime();
-            loadDepartmentTitle();
         });
     </script>
 </body>
