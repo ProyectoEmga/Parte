@@ -449,8 +449,7 @@
         <h2 class="text-2xl font-semibold mb-6 text-gray-800">Estado del Personal</h2>
 
         <div id="personnel-grid">
-            <!-- Las tarjetas de personal se renderizarán aquí -->
-        </div>
+            </div>
 
         <div class="add-person-section">
             <input type="text" id="new-person-name" placeholder="Ingrese nuevo nombre de persona">
@@ -460,7 +459,6 @@
         <div class="summary-box" id="summary-box-to-capture">
             <h3 class="text-xl font-semibold mb-4 text-gray-800">Resumen General</h3>
 
-            <!-- Nuevo Cuadro de resumen general de cantidades -->
             <div class="summary-section" id="overall-summary-display">
                 <h4 class="text-lg font-semibold mb-2 text-gray-700">Visión General</h4>
                 <div class="summary-item">
@@ -481,7 +479,6 @@
                 </div>
             </div>
 
-            <!-- Cuadro de resumen de cantidades por categoría (existente) -->
             <div class="summary-section mt-6" id="summary-counts-display">
                 <h4 class="text-lg font-semibold mb-2 text-gray-700">Cantidades por Categoría</h4>
                 <div class="summary-item">
@@ -510,7 +507,6 @@
                 </div>
             </div>
 
-            <!-- Cuadro de desglose con nombres (existente) -->
             <div class="summary-section mt-6" id="summary-details-display">
                 <h4 class="text-lg font-semibold mb-2 text-gray-700">Detalle por Categoría</h4>
                 <div class="summary-item with-dropdown">
@@ -542,14 +538,12 @@
         <button type="button" id="download-summary-btn" class="button-armada mt-6 w-full bg-green-600 hover:bg-green-700">Descargar Resumen como Imagen</button>
     </div>
 
-    <!-- Popover de edición de estado (oculto por defecto) -->
     <div class="popover-overlay" id="edit-status-popover">
         <div class="popover-content">
             <button class="popover-close-btn" id="popover-close-btn">&times;</button>
             <h4 id="popover-person-name"></h4>
             <select id="popover-status-select">
-                <!-- Opciones de estado se cargarán aquí -->
-            </select>
+                </select>
             <div class="button-group">
                 <button class="save-btn" id="popover-save-btn">Guardar</button>
                 <button class="cancel-btn" id="popover-cancel-btn">Cancelar</button>
@@ -557,7 +551,7 @@
         </div>
     </div>
 
-    <script>
+    <script defer>
         document.addEventListener('DOMContentLoaded', () => {
             const personnelGrid = document.getElementById('personnel-grid');
             const addPersonBtn = document.getElementById('add-person-btn');
@@ -1007,12 +1001,12 @@
             downloadSummaryBtn.addEventListener('click', downloadSummaryAsImage);
 
             // Popover event listeners
-            popoverCloseBtn.addEventListener('click', () => closeEditPopover(true));
-            popoverCancelBtn.addEventListener('click', () => closeEditPopover(true));
+            popoverCloseBtn.addEventListener('click', () => closeEditPopover(true)); // Pasar true para indicar que fue cancelado
+            popoverCancelBtn.addEventListener('click', () => closeEditPopover(true)); // Pasar true para indicar que fue cancelado
             popoverSaveBtn.addEventListener('click', savePopoverChanges);
             editStatusPopover.addEventListener('click', (e) => {
                 if (e.target === editStatusPopover) {
-                    closeEditPopover(true);
+                    closeEditPopover(true); // Pasar true para indicar que fue cancelado
                 }
             });
 
