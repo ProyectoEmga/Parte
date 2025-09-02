@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parte Dpto. Finanzas y Abastecimiento EMGA 2025</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: #f0f4f8;
-            margin: 0;
-            padding: 0;
         }
         .header-armada {
             background-color: #003366;
@@ -33,37 +33,22 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 2rem;
-            margin-top: 2rem;
+            margin: 2rem auto;
             width: 95%;
             max-width: 1024px;
-            box-sizing: border-box;
         }
-        @media (min-width: 768px) {
-            .container-armada { width: 75%; }
-        }
-        @media (min-width: 1024px) {
-            .container-armada { width: 66%; }
-        }
-        @media (min-width: 1280px) {
-            .container-armada { width: 50%; }
-        }
-
-        /* Estilos para las tarjetas de personal */
-        #personnel-grid {
+        .personnel-grid-section {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 1rem;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
         }
         .person-card {
             background-color: #e0e7ff;
             border: 1px solid #a7baff;
             border-radius: 0.5rem;
             padding: 0.75rem;
-            text-align: left;
-            cursor: default; /* Changed to default as click is for switch */
             position: relative;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
@@ -87,11 +72,6 @@
             color: #003366;
             line-height: 1.2;
             flex-grow: 1;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
             font-size: 0.95rem;
         }
         .person-card-status-text {
@@ -101,919 +81,533 @@
             padding: 0.2rem 0.4rem;
             border-radius: 0.25rem;
             margin-top: auto;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
             text-align: center;
         }
         .remove-card-btn {
             position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s, background-color 0.2s;
-            line-height: 1;
-            padding: 0;
-            z-index: 10;
+            top: 5px; right: 5px; background-color: #dc3545; color: white;
+            border: none; border-radius: 50%; width: 20px; height: 20px;
+            font-size: 0.7rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; opacity: 0.8; transition: opacity 0.2s;
         }
-        .remove-card-btn:hover {
-            opacity: 1;
-            background-color: #c82333;
-        }
-
-        /* Estilos del Switch de 3 estados */
+        .remove-card-btn:hover { opacity: 1; }
         .status-switch {
-            width: 60px;
-            height: 28px;
-            background-color: #6c757d; /* Default gray track */
-            border-radius: 14px;
-            position: relative;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            flex-shrink: 0;
-            margin-left: 0.5rem;
-            display: flex;
-            align-items: center;
-            padding: 2px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+            width: 60px; height: 28px; background-color: #6c757d; border-radius: 14px;
+            position: relative; cursor: pointer; transition: background-color 0.3s ease;
+            flex-shrink: 0; margin-left: 0.5rem; display: flex; align-items: center;
+            padding: 2px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
         }
-
         .switch-handle {
-            width: 24px;
-            height: 24px;
-            background-color: white;
-            border-radius: 50%;
-            position: absolute;
-            transition: transform 0.3s ease;
+            width: 24px; height: 24px; background-color: white; border-radius: 50%;
+            position: absolute; transition: transform 0.3s ease;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-
-        /* Estados del Switch */
         .status-switch[data-state="green"] { background-color: #28a745; }
-        .status-switch[data-state="green"] .switch-handle { transform: translateX(32px); } /* Right for green */
-
+        .status-switch[data-state="green"] .switch-handle { transform: translateX(32px); }
         .status-switch[data-state="red"] { background-color: #dc3545; }
-        .status-switch[data-state="red"] .switch-handle { transform: translateX(18px); } /* Center for red */
-
+        .status-switch[data-state="red"] .switch-handle { transform: translateX(16px); }
         .status-switch[data-state="gray"] { background-color: #6c757d; }
-        .status-switch[data-state="gray"] .switch-handle { transform: translateX(0); } /* Left for gray */
+        .status-switch[data-state="gray"] .switch-handle { transform: translateX(0); }
 
-        /* Estilos del Popover/Modal de edición */
         .popover-overlay {
-            position: fixed;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.4); display: flex; justify-content: center;
+            align-items: center; z-index: 1000; opacity: 0; visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .popover-overlay.visible { opacity: 1; visibility: visible; }
+        .popover-content {
+            background-color: #ffffff; padding: 1.5rem; border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); max-width: 90%; width: 380px;
+            transform: translateY(-20px); opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .popover-overlay.visible .popover-content { transform: translateY(0); opacity: 1; }
+        .popover-content h4 { font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem; color: #003366; text-align: center; }
+        .popover-content .form-group { margin-bottom: 1rem; }
+        .popover-content label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #4a5568; }
+        .popover-content select, .popover-content input {
+            width: 100%; padding: 0.75rem; border: 1px solid #cbd5e0; border-radius: 0.375rem; font-size: 1rem;
+        }
+        .popover-content .button-group { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;}
+        #popover-detail-group { display: none; }
+
+        .summary-box { background-color: #e6f0f9; border: 1px solid #b3d1f1; border-radius: 8px; padding: 1.5rem; margin-top: 2rem; }
+        .summary-detail-list { list-style-position: inside; padding-left: 1.5rem; font-size: 0.9rem; color: #4a5568; }
+
+        /* Styles for the image summary (corrected for reliable capture) */
+        #summary-for-image-wrapper {
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            height: 1px;
+            width: 1px;
+            overflow: hidden;
             opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
         }
-        .popover-overlay.visible {
-            opacity: 1;
-            visibility: visible;
+        #summary-for-image {
+            width: 800px;
+            background: white;
+            padding: 20px;
+            font-family: 'Roboto Mono', monospace;
+            color: #000;
         }
-        .popover-content {
-            background-color: #ffffff;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            max-width: 90%;
-            width: 350px;
-            transform: translateY(-20px);
-            opacity: 0;
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-            position: relative;
+        .img-summary-container {
+            border: 4px solid #003366;
+            padding: 15px;
         }
-        .popover-overlay.visible .popover-content {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        .popover-close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
+        .img-summary-title {
+            background-color: #003366;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
             font-size: 1.2rem;
-            cursor: pointer;
-            color: #666;
+            margin-bottom: 15px;
         }
-        .popover-close-btn:hover {
-            color: #333;
-        }
-        .popover-content h4 {
-            font-size: 1.25rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            color: #003366;
-            text-align: center;
-        }
-        .popover-content select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #cbd5e0;
-            border-radius: 0.375rem;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke='%234A5568' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 1.5em;
-            accent-color: #003366;
-        }
-        .popover-content .button-group {
+        .img-summary-row {
             display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-        }
-        .popover-content .button-group button {
-            padding: 0.6rem 1.2rem;
-            border-radius: 0.375rem;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-            transition: background-color 0.2s;
-        }
-        .popover-content .button-group .save-btn {
-            background-color: #004080;
-            color: white;
-        }
-        .popover-content .button-group .save-btn:hover {
-            background-color: #0056b3;
-        }
-        .popover-content .button-group .cancel-btn {
-            background-color: #e2e8f0;
-            color: #4a5568;
-        }
-        .popover-content .button-group .cancel-btn:hover {
-            background-color: #cbd5e0;
-        }
-
-        /* Estilos del resumen (modificaciones para estética) */
-        .summary-box {
-            background-color: #e6f0f9;
-            border: 1px solid #b3d1f1;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            text-align: center;
-        }
-        .summary-section {
-            padding: 1rem;
-            border-bottom: 1px dotted #cce0f5;
-            text-align: left;
-        }
-        .summary-section:last-of-type {
-            border-bottom: none;
-        }
-        .summary-section h4 {
-            margin-bottom: 1rem;
-            text-align: center;
-            font-size: 1.125rem;
-            color: #2d3748;
-        }
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-        }
-        .summary-item span:first-child {
-            font-weight: bold;
-            color: #003366;
-            flex-grow: 1;
-        }
-        .summary-item span:last-child {
-            font-weight: bold;
-            color: #003366;
-            font-size: 1.1rem;
-            min-width: 25px;
-            text-align: right;
-        }
-
-        /* Estilos para el nuevo cuadro de Visión General */
-        #overall-summary-display {
-            background-color: #dbeafe; /* Light blue background */
-            border: 1px solid #93c5fd;
-            border-radius: 6px;
-            padding: 1rem 1.5rem; /* More padding */
-            margin-bottom: 1.5rem; /* Space before next section */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-        }
-        #overall-summary-display h4 {
-            color: #1e3a8a; /* Darker blue for heading */
-            font-size: 1.25rem; /* Larger heading */
-            margin-bottom: 1.25rem;
-        }
-        #overall-summary-display .summary-item {
-            padding: 0.6rem 0; /* More vertical padding */
-            border-bottom: 1px dotted #a7c8f0; /* Lighter dotted border */
-        }
-        #overall-summary-display .summary-item:last-child {
-            border-bottom: none;
-        }
-        #overall-summary-display .summary-item span:first-child {
-            font-size: 1.05rem; /* Slightly larger text for labels */
-            color: #003366;
-        }
-        #overall-summary-display .summary-item span:last-child {
-            font-size: 1.3rem; /* Larger font for counts */
-            color: #003366;
-            font-weight: bold;
-        }
-
-
-        /* Estilos específicos para el desglose con dropdowns */
-        .summary-item.with-dropdown {
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 0.75rem 0;
-        }
-        .summary-item.with-dropdown > span:first-child {
-            width: 100%;
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-            text-align: left;
-        }
-        @media (min-width: 640px) {
-            .summary-item.with-dropdown {
-                flex-direction: row;
-                align-items: flex-start;
-            }
-            .summary-item.with-dropdown > span:first-child {
-                width: auto;
-                margin-bottom: 0;
-            }
-        }
-        .personnel-dropdown {
-            font-size: 0.8rem;
-            color: #4a5568;
-            margin-top: 0.25rem;
-            padding: 0.75rem;
-            background-color: #f9fbfd;
-            border-radius: 4px;
-            border: 1px solid #e2e8f0;
-            display: none;
-            line-height: 1.5;
-            max-height: 180px;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-        .personnel-dropdown ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .personnel-dropdown li {
-            padding: 0.15rem 0;
-            border-bottom: 1px dotted #ebf1f7;
-        }
-        .personnel-dropdown li:last-child {
-            border-bottom: none;
-        }
-        .personnel-dropdown:empty {
-            display: none;
-        }
-        .add-person-section {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
             align-items: stretch;
+            margin-bottom: 5px;
         }
-        @media (min-width: 640px) {
-            .add-person-section {
-                flex-direction: row;
-                align-items: center;
-            }
+        .img-summary-label {
+            width: 200px;
+            padding: 8px;
+            font-weight: 500;
+            flex-shrink: 0;
         }
-        .add-person-section input {
-            flex-grow: 1;
-            padding: 0.5rem;
-            border: 1px solid #cbd5e0;
-            border-radius: 0.375rem;
-            width: 100%;
-        }
-        .button-armada {
-            background-color: #004080;
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 0.375rem;
+        .img-summary-box {
+            border: 2px solid #003366;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
-            transition: background-color 0.2s;
-            cursor: pointer;
-            border: none;
+            min-height: 38px;
+            width: 100px;
+        }
+        .img-summary-con-motivo {
+            display: flex;
+            flex-direction: column;
             width: 100%;
         }
-        @media (min-width: 640px) {
-            .button-armada {
-                width: auto;
-            }
+        .img-summary-con-motivo .img-summary-row {
+            position: relative;
+            margin-left: 40px;
         }
-        .button-armada:hover {
-            background-color: #0056b3;
+        /* Creating the connector lines */
+        .img-summary-row.con-motivo-main > .img-summary-label::after {
+            content: '';
+            position: absolute;
+            left: 200px;
+            top: 50%;
+            width: 20px;
+            height: 2px;
+            background-color: #003366;
         }
-        
-        /* Ocultar elementos para la captura de imagen */
-        .no-capture {
-            display: none !important;
+        .img-summary-con-motivo .img-summary-row::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: -50%;
+            bottom: 50%;
+            width: 2px;
+            background-color: #003366;
+        }
+        .img-summary-con-motivo .img-summary-row:first-child::before {
+            top: 50%;
+        }
+         .img-summary-con-motivo .img-summary-row:last-child::before {
+            bottom: 50%;
+        }
+        .img-summary-con-motivo .img-summary-row::after {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            width: 20px;
+            height: 2px;
+            background-color: #003366;
+        }
+        .img-summary-details-box {
+            border: 2px solid #003366;
+            padding: 8px;
+            flex-grow: 1;
+            margin-left: 5px;
+            min-height: 38px;
+        }
+        .img-summary-details-box ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
-    <header class="header-armada w-full">
+    <header class="header-armada w-full no-capture">
         <h1 class="text-3xl font-bold">Parte Dpto. Finanzas y Abastecimiento EMGA 2025</h1>
         <div class="last-updated" id="last-updated"></div>
     </header>
 
-    <div class="container-armada mt-8 mb-8">
-        <h2 class="text-2xl font-semibold mb-6 text-gray-800">Estado del Personal</h2>
-
-        <div id="personnel-grid">
-            </div>
-
-        <div class="add-person-section">
-            <input type="text" id="new-person-name" placeholder="Ingrese nuevo nombre de persona">
-            <button type="button" id="add-person-btn" class="button-armada">Agregar Persona</button>
-        </div>
-
-        <div class="summary-box" id="summary-box-to-capture">
-            <h3 class="text-xl font-semibold mb-4 text-gray-800">Resumen General</h3>
-
-            <div class="summary-section" id="overall-summary-display">
-                <h4 class="text-lg font-semibold mb-2 text-gray-700">Visión General</h4>
-                <div class="summary-item">
-                    <span>Fuerza efectiva:</span>
-                    <span id="overall-effective-force-count">0</span>
-                </div>
-                <div class="summary-item">
-                    <span>Forman (A bordo):</span>
-                    <span id="overall-forman-count">0</span>
-                </div>
-                <div class="summary-item">
-                    <span>Con motivo:</span>
-                    <span id="overall-con-motivo-count">0</span>
-                </div>
-                <div class="summary-item">
-                    <span>Sin motivo:</span>
-                    <span id="overall-sin-motivo-count">0</span>
-                </div>
-            </div>
-
-            <div class="summary-section mt-6" id="summary-counts-display">
-                <h4 class="text-lg font-semibold mb-2 text-gray-700">Cantidades por Categoría</h4>
-                <div class="summary-item">
-                    <span>Alto mando:</span>
-                    <span id="altomando-count-num">0</span>
-                </div>
-                <div class="summary-item">
-                    <span>A bordo:</span>
-                    <span id="abordo-count-num">0</span>
-                </div>
-                <div class="summary-item">
-                    <span>En trabajos:</span>
-                    <span id="trabajos-count-num">0</span>
-                </div>
-                <div class="summary-item">
-                    <span>En comisión:</span>
-                    <span id="comision-count-num">0</span>
-                </div>
-                <div class="summary-item">
-                    <span>De baja:</span>
-                    <span id="baja-count-num">0</span>
-                </div>
-                <div class="summary-item">
-                    <span>Con permiso:</span>
-                    <span id="permiso-count-num">0</span>
-                </div>
-            </div>
-
-            <div class="summary-section mt-6" id="summary-details-display">
-                <h4 class="text-lg font-semibold mb-2 text-gray-700">Detalle por Categoría</h4>
-                <div class="summary-item with-dropdown">
-                    <span>Alto mando:</span>
-                    <div class="personnel-dropdown" id="altomando-dropdown"></div>
-                </div>
-                <div class="summary-item with-dropdown">
-                    <span>A bordo:</span>
-                    <div class="personnel-dropdown" id="abordo-dropdown"></div>
-                </div>
-                <div class="summary-item with-dropdown">
-                    <span>En trabajos:</span>
-                    <div class="personnel-dropdown" id="trabajos-dropdown"></div>
-                </div>
-                <div class="summary-item with-dropdown">
-                    <span>En comisión:</span>
-                    <div class="personnel-dropdown" id="comision-dropdown"></div>
-                </div>
-                <div class="summary-item with-dropdown">
-                    <span>De baja:</span>
-                    <div class="personnel-dropdown" id="baja-dropdown"></div>
-                </div>
-                <div class="summary-item with-dropdown">
-                    <span>Con permiso:</span>
-                    <div class="personnel-dropdown" id="permiso-dropdown"></div>
-                </div>
+    <div class="container-armada">
+        <div class="no-capture">
+            <h2 class="text-2xl font-semibold mb-2 text-gray-800">Estado del Personal</h2>
+            <h3 class="text-xl font-semibold mt-4 mb-2 text-gray-700 border-b pb-2">FINANZAS</h3>
+            <div id="finanzas-grid" class="personnel-grid-section"></div>
+            <h3 class="text-xl font-semibold mt-6 mb-2 text-gray-700 border-b pb-2">STAFF</h3>
+            <div id="staff-grid" class="personnel-grid-section"></div>
+            <div class="add-person-section mt-8 pt-6 border-t">
+                <input type="text" id="new-person-name" placeholder="Ingrese nuevo nombre de persona" class="flex-grow p-2 border rounded">
+                <button type="button" id="add-person-btn" class="bg-blue-800 text-white font-bold py-2 px-4 rounded hover:bg-blue-900 transition-colors">Agregar Persona</button>
             </div>
         </div>
-        <button type="button" id="download-summary-btn" class="button-armada mt-6 w-full bg-green-600 hover:bg-green-700">Descargar Resumen como Imagen</button>
+
+        <div class="summary-box" id="summary-box-on-screen">
+             <h3 class="text-xl font-semibold mb-4 text-gray-800 text-center">Resumen General</h3>
+             <div id="overall-summary-display"></div>
+        </div>
+        <button type="button" id="download-summary-btn" class="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded transition-colors no-capture">Descargar Resumen como Imagen</button>
     </div>
 
-    <div class="popover-overlay" id="edit-status-popover">
-        <div class="popover-content">
-            <button class="popover-close-btn" id="popover-close-btn">&times;</button>
+    <!-- Popover for editing status -->
+    <div class="popover-overlay no-capture" id="edit-status-popover">
+        <div class="popover-content relative">
+            <button id="popover-close-btn" class="absolute top-2 right-4 text-2xl font-bold text-gray-500 hover:text-gray-800">&times;</button>
             <h4 id="popover-person-name"></h4>
-            <select id="popover-status-select">
-                </select>
+            <div class="form-group">
+                <label for="popover-status-select">Seleccione motivo:</label>
+                <select id="popover-status-select"></select>
+            </div>
+            <div class="form-group" id="popover-detail-group">
+                <label for="popover-detail-input">Detalle:</label>
+                <input type="text" id="popover-detail-input" placeholder="Ej: Comisión a Valparaíso">
+            </div>
             <div class="button-group">
-                <button class="save-btn" id="popover-save-btn">Guardar</button>
-                <button class="cancel-btn" id="popover-cancel-btn">Cancelar</button>
+                <button id="popover-cancel-btn" class="bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 rounded">Cancelar</button>
+                <button id="popover-save-btn" class="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded">Guardar</button>
             </div>
         </div>
     </div>
+    
+    <!-- Hidden wrapper for generating the image -->
+    <div id="summary-for-image-wrapper">
+        <div id="summary-for-image"></div>
+    </div>
+
 
     <script defer>
         document.addEventListener('DOMContentLoaded', () => {
-            const personnelGrid = document.getElementById('personnel-grid');
-            const addPersonBtn = document.getElementById('add-person-btn');
-            const newPersonNameInput = document.getElementById('new-person-name');
-            const lastUpdatedElement = document.getElementById('last-updated');
-            const downloadSummaryBtn = document.getElementById('download-summary-btn');
-            const summaryBoxToCapture = document.getElementById('summary-box-to-capture');
+            const ui = {
+                finanzasGrid: document.getElementById('finanzas-grid'),
+                staffGrid: document.getElementById('staff-grid'),
+                addPersonBtn: document.getElementById('add-person-btn'),
+                newPersonNameInput: document.getElementById('new-person-name'),
+                lastUpdatedElement: document.getElementById('last-updated'),
+                downloadSummaryBtn: document.getElementById('download-summary-btn'),
+                overallSummaryDisplay: document.getElementById('overall-summary-display'),
+                popover: document.getElementById('edit-status-popover'),
+                popoverCloseBtn: document.getElementById('popover-close-btn'),
+                popoverCancelBtn: document.getElementById('popover-cancel-btn'),
+                popoverSaveBtn: document.getElementById('popover-save-btn'),
+                popoverPersonName: document.getElementById('popover-person-name'),
+                popoverStatusSelect: document.getElementById('popover-status-select'),
+                popoverDetailGroup: document.getElementById('popover-detail-group'),
+                popoverDetailInput: document.getElementById('popover-detail-input'),
+                summaryForImage: document.getElementById('summary-for-image'),
+            };
 
-            const editStatusPopover = document.getElementById('edit-status-popover');
-            const popoverCloseBtn = document.getElementById('popover-close-btn');
-            const popoverCancelBtn = document.getElementById('popover-cancel-btn');
-            const popoverSaveBtn = document.getElementById('popover-save-btn');
-            const popoverPersonName = document.getElementById('popover-person-name');
-            const popoverStatusSelect = document.getElementById('popover-status-select');
+            const config = {
+                personnelDataKey: 'personnelDataEmga2025-v5',
+                lastUpdatedKey: 'lastUpdatedEmga2025-v5',
+                finanzasNames: ['T1 ANDRÉS VARAS', 'PAC RAÚL DÍAZ', 'SO GERMÁN CASTRO', 'SO JUAN MUÑOZ', 'S1 CARLOS ALARCÓN', 'S1 JORGE ESPINOZA', 'S1 CARLOS JIMÉNEZ', 'S2 GABRIEL CLAVERÍA', 'C1 JONATAN MORAGA', 'C1 SAMI DONOSO', 'TT PEDRO VERDUGO'],
+                staffNames: ['SO RICARDO CARIPÁN', 'SO ALFONSO ESPINOZA', 'S1 ROBERTO ALEGRÍA', 'S1 MARCO ERAZO', 'S2 JOSUÉ RAÍN'],
+                categories: [
+                    { value: 'A bordo', text: 'A bordo', type: 'green' },
+                    { value: 'Sin motivo', text: 'Sin motivo', type: 'gray' },
+                    { value: 'En comisión', text: 'Comisión', type: 'red', needsDetail: true },
+                    { value: 'En trabajos', text: 'Trabajos', type: 'red', needsDetail: true },
+                    { value: 'Baja médica', text: 'Baja médica', type: 'red' },
+                    { value: 'Con permiso', text: 'Permiso', type: 'red' },
+                    { value: 'Alto mando', text: 'Alto mando', type: 'red' },
+                ],
+                greenStatus: 'A bordo',
+                grayStatus: 'Sin motivo',
+            };
+            config.redCategories = config.categories.filter(c => c.type === 'red');
+            config.initialPersonnelNames = [...config.finanzasNames, ...config.staffNames];
 
-            const personnelDataKey = 'personnelDataEmga2025';
-            const lastUpdatedKey = 'lastUpdatedEmga2025';
+            let state = {
+                personnel: [],
+                currentEditingPersonId: null,
+            };
 
-            let personnel = [];
-            let currentEditingPersonId = null;
+            const generateId = () => Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
 
-            const initialPersonnelNames = [
-                'T1 ANDRÉS VARAS',
-                'PAC RAÚL DÍAZ',
-                'SO GERMÁN CASTRO',
-                'SO JUAN MUÑOZ',
-                'SO ALFONSO ESPINOZA',
-                'S1 CARLOS ALARCÓN',
-                'S1 JORGE ESPINOZA',
-                'S1 CARLOS JIMÉNEZ',
-                'S1 GREGORY FUENTES',
-                'S2 GABRIEL CLAVERÍA',
-                'S2 JOSUÉ RAÍN',
-                'C1 JONATAN MORAGA',
-                'C1 SAMI DONOSO',
-                'TT PEDRO VERDUGO'
-            ];
-
-            // Definición de categorías con su tipo de switch
-            const categories = [
-                { value: 'A bordo', text: 'A bordo', type: 'green' },
-                { value: 'Sin motivo', text: 'Sin motivo', type: 'gray' },
-                { value: 'Alto mando', text: 'Alto mando', type: 'red' },
-                { value: 'En trabajos', text: 'En trabajos', type: 'red' },
-                { value: 'En comisión', text: 'En comisión', type: 'red' },
-                { value: 'De baja', text: 'De baja', type: 'red' },
-                { value: 'Con permiso', text: 'Con permiso', type: 'red' }
-            ];
-
-            const greenStatus = 'A bordo';
-            const grayStatus = 'Sin motivo';
-            const redCategories = categories.filter(cat => cat.type === 'red');
-
-            // Rellenar el selector del popover con las categorías "rojas"
-            function populatePopoverRedCategories() {
-                popoverStatusSelect.innerHTML = ''; // Limpiar opciones existentes
-                redCategories.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat.value;
-                    option.textContent = cat.text;
-                    popoverStatusSelect.appendChild(option);
-                });
-            }
-
-            function generateId() {
-                return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-            }
-
-            function savePersonnelData() {
+            const saveState = () => {
                 try {
-                    localStorage.setItem(personnelDataKey, JSON.stringify(personnel));
+                    localStorage.setItem(config.personnelDataKey, JSON.stringify(state.personnel));
                     updateLastUpdatedTime();
-                } catch (error) {
-                    console.warn('No se pudo guardar en localStorage:', error);
-                }
-            }
+                } catch (e) { console.warn('Could not save state:', e); }
+            };
 
-            function loadPersonnelData() {
+            const loadState = () => {
                 try {
-                    const storedData = localStorage.getItem(personnelDataKey);
-                    if (storedData) {
-                        const loadedPersonnel = JSON.parse(storedData);
-                        const loadedPersonnelMap = new Map(loadedPersonnel.map(p => [p.name, p]));
+                    const storedData = localStorage.getItem(config.personnelDataKey);
+                    let loadedData = storedData ? JSON.parse(storedData) : [];
+                    const loadedMap = new Map(loadedData.map(p => [p.name, p]));
+                    
+                    const personnelList = config.initialPersonnelNames.map(name => {
+                        if (loadedMap.has(name)) {
+                            const person = loadedMap.get(name);
+                            loadedMap.delete(name);
+                            return { detail: '', ...person };
+                        }
+                        return { id: generateId(), name, status: config.greenStatus, detail: '' };
+                    });
+                    
+                    state.personnel = [...personnelList, ...Array.from(loadedMap.values())];
 
-                        personnel = [];
-                        initialPersonnelNames.forEach(name => {
-                            if (loadedPersonnelMap.has(name)) {
-                                personnel.push(loadedPersonnelMap.get(name));
-                                loadedPersonnelMap.delete(name);
-                            } else {
-                                // Default new initial personnel to 'A bordo' (green)
-                                personnel.push({ id: generateId(), name: name, status: greenStatus });
-                            }
-                        });
-
-                        // Add any additional personnel that were not in the initial list
-                        loadedPersonnel.forEach(p => {
-                            if (!initialPersonnelNames.includes(p.name)) {
-                                // Ensure loaded personnel have a valid status, default to 'A bordo' if not set
-                                if (!p.status || !categories.some(cat => cat.value === p.status)) {
-                                    p.status = greenStatus;
-                                }
-                                personnel.push(p);
-                            }
-                        });
-                    } else {
-                        // If no data saved, initialize all to 'A bordo' (green)
-                        personnel = initialPersonnelNames.map(name => ({
-                            id: generateId(),
-                            name: name,
-                            status: greenStatus
-                        }));
-                    }
-                } catch (error) {
-                    console.warn('Error al cargar datos:', error);
-                    personnel = initialPersonnelNames.map(name => ({
-                        id: generateId(),
-                        name: name,
-                        status: greenStatus
-                    }));
+                } catch (e) {
+                    console.warn('Error loading state:', e);
+                    state.personnel = config.initialPersonnelNames.map(name => ({ id: generateId(), name, status: config.greenStatus, detail: '' }));
                 }
-                renderPersonnelGrid();
-            }
+                render();
+            };
 
-            function updateLastUpdatedTime() {
+            const updateLastUpdatedTime = () => {
                 const now = new Date();
-                const options = {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    timeZoneName: 'short',
-                    hour12: false
-                };
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Santiago' };
                 try {
-                    const formattedDate = new Intl.DateTimeFormat('es-CL', {
-                        ...options,
-                        timeZone: 'America/Santiago'
-                    }).format(now);
-                    lastUpdatedElement.textContent = `Última actualización: ${formattedDate}`;
-                    localStorage.setItem(lastUpdatedKey, formattedDate);
-                } catch (error) {
-                    console.warn('Error al actualizar tiempo:', error);
-                    lastUpdatedElement.textContent = `Última actualización: ${now.toLocaleString()}`;
+                    const formattedDate = new Intl.DateTimeFormat('es-CL', options).format(now);
+                    const fullText = `Última actualización: ${formattedDate}`;
+                    ui.lastUpdatedElement.textContent = fullText;
+                    localStorage.setItem(config.lastUpdatedKey, fullText);
+                } catch (e) {
+                    ui.lastUpdatedElement.textContent = `Última actualización: ${now.toLocaleString()}`;
                 }
-            }
-
-            function loadLastUpdatedTime() {
-                try {
-                    const storedTime = localStorage.getItem(lastUpdatedKey);
-                    if (storedTime) {
-                        lastUpdatedElement.textContent = `Última actualización: ${storedTime}`;
-                    } else {
-                        lastUpdatedElement.textContent = 'Última actualización: Nunca';
-                    }
-                } catch (error) {
-                    console.warn('Error al cargar tiempo:', error);
-                    lastUpdatedElement.textContent = 'Última actualización: Nunca';
-                }
-            }
-
-            function createPersonCard(person) {
+            };
+            
+            const createPersonCard = (person) => {
                 const card = document.createElement('div');
                 card.className = 'person-card';
-                card.dataset.id = person.id;
-
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-card-btn';
-                removeBtn.textContent = 'X';
-                removeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    removePerson(person.id);
-                });
-
-                const headerDiv = document.createElement('div');
-                headerDiv.className = 'person-card-header';
-
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'person-card-name';
-                nameDiv.textContent = person.name;
-
-                const statusSwitch = document.createElement('div');
-                statusSwitch.className = 'status-switch';
-                const currentStatusType = categories.find(cat => cat.value === person.status)?.type || 'gray';
-                statusSwitch.dataset.state = currentStatusType;
-
-                const switchHandle = document.createElement('div');
-                switchHandle.className = 'switch-handle';
-                statusSwitch.appendChild(switchHandle);
-
-                statusSwitch.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Prevent card click from firing
-                    toggleSwitchState(person.id);
-                });
-
-                headerDiv.appendChild(nameDiv);
-                headerDiv.appendChild(statusSwitch);
-
-                const statusTextDiv = document.createElement('div');
-                statusTextDiv.className = 'person-card-status-text';
-                statusTextDiv.textContent = person.status;
-
-                card.appendChild(removeBtn);
-                card.appendChild(headerDiv);
-                card.appendChild(statusTextDiv);
-
+                card.innerHTML = `
+                    <button class="remove-card-btn">&times;</button>
+                    <div class="person-card-header">
+                        <div class="person-card-name">${person.name}</div>
+                        <div class="status-switch" data-state="${config.categories.find(c=>c.value === person.status)?.type || 'gray'}">
+                            <div class="switch-handle"></div>
+                        </div>
+                    </div>
+                    <div class="person-card-status-text">${person.status}</div>
+                `;
+                card.querySelector('.remove-card-btn').onclick = (e) => { e.stopPropagation(); removePerson(person.id); };
+                card.querySelector('.status-switch').onclick = (e) => { e.stopPropagation(); toggleSwitchState(person.id); };
                 return card;
-            }
+            };
 
-            function renderPersonnelGrid() {
-                personnelGrid.innerHTML = '';
-                personnel.forEach(person => {
-                    personnelGrid.appendChild(createPersonCard(person));
-                });
-                updateSummary();
-            }
-
-            function toggleSwitchState(personId) {
-                const person = personnel.find(p => p.id === personId);
+            const toggleSwitchState = (personId) => {
+                const person = state.personnel.find(p => p.id === personId);
                 if (!person) return;
+                const currentStatusType = config.categories.find(c => c.value === person.status)?.type;
+                if (currentStatusType === 'green') openEditPopover(person);
+                else if (currentStatusType === 'red') person.status = config.grayStatus;
+                else person.status = config.greenStatus;
+                saveState();
+                render();
+            };
 
-                const currentStatus = person.status;
-
-                if (currentStatus === greenStatus) {
-                    // Verde -> Rojo (abre popover para elegir motivo)
-                    person.status = redCategories[0].value; // Establece un motivo rojo por defecto temporalmente
-                    savePersonnelData(); // Guarda el estado temporal
-                    renderPersonnelGrid(); // Actualiza la UI para mostrar el switch en rojo
-                    openEditPopover(person); // Abre el popover para que el usuario elija el motivo real
-                } else if (redCategories.some(cat => cat.value === currentStatus)) {
-                    // Rojo -> Gris
-                    person.status = grayStatus;
-                    savePersonnelData();
-                    renderPersonnelGrid();
-                } else if (currentStatus === grayStatus) {
-                    // Gris -> Verde
-                    person.status = greenStatus;
-                    savePersonnelData();
-                    renderPersonnelGrid();
+            const addPerson = () => {
+                const name = ui.newPersonNameInput.value.trim().toUpperCase();
+                if (!name) return;
+                if (state.personnel.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                    alert('Esta persona ya existe.');
+                    return;
                 }
-            }
-
-            function addPerson() {
-                const name = newPersonNameInput.value.trim();
-                if (name) {
-                    if (personnel.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-                        alert('Esta persona ya existe en la lista.');
-                        return;
-                    }
-
-                    const newPerson = {
-                        id: generateId(),
-                        name: name,
-                        status: greenStatus // Default new person to 'A bordo' (green)
-                    };
-                    personnel.push(newPerson);
-                    newPersonNameInput.value = '';
-                    savePersonnelData();
-                    renderPersonnelGrid();
-                } else {
-                    alert('Por favor, ingrese un nombre para la persona.');
-                }
-            }
-
-            function removePerson(idToRemove) {
+                state.personnel.push({ id: generateId(), name, status: config.greenStatus, detail: '' });
+                ui.newPersonNameInput.value = '';
+                saveState();
+                render();
+            };
+            
+            const removePerson = (id) => {
                 if (confirm('¿Está seguro de que desea eliminar a esta persona?')) {
-                    personnel = personnel.filter(person => person.id !== idToRemove);
-                    savePersonnelData();
-                    renderPersonnelGrid();
+                    state.personnel = state.personnel.filter(p => p.id !== id);
+                    saveState();
+                    render();
                 }
-            }
+            };
+            
+            const openEditPopover = (person) => {
+                state.currentEditingPersonId = person.id;
+                ui.popoverPersonName.textContent = person.name;
+                ui.popoverStatusSelect.innerHTML = config.redCategories.map(c => `<option value="${c.value}">${c.text}</option>`).join('');
+                ui.popoverStatusSelect.value = person.status !== config.greenStatus ? person.status : config.redCategories[0].value;
+                ui.popoverDetailInput.value = person.detail || '';
+                handlePopoverDetailVisibility();
+                ui.popover.classList.add('visible');
+            };
 
-            function openEditPopover(person) {
-                currentEditingPersonId = person.id;
-                popoverPersonName.textContent = person.name;
-                // Pre-seleccionar el motivo actual si es una categoría roja, si no, la primera opción roja
-                if (redCategories.some(cat => cat.value === person.status)) {
-                    popoverStatusSelect.value = person.status;
-                } else {
-                    popoverStatusSelect.value = redCategories[0]?.value || '';
+            const closeEditPopover = () => ui.popover.classList.remove('visible');
+
+            const handlePopoverDetailVisibility = () => {
+                const selectedStatus = ui.popoverStatusSelect.value;
+                const needsDetail = config.categories.find(c => c.value === selectedStatus)?.needsDetail;
+                ui.popoverDetailGroup.style.display = needsDetail ? 'block' : 'none';
+            };
+
+            const savePopoverChanges = () => {
+                const person = state.personnel.find(p => p.id === state.currentEditingPersonId);
+                if (person) {
+                    person.status = ui.popoverStatusSelect.value;
+                    const needsDetail = config.categories.find(c => c.value === person.status)?.needsDetail;
+                    person.detail = needsDetail ? ui.popoverDetailInput.value : '';
+                    saveState();
+                    render();
                 }
-                editStatusPopover.classList.add('visible');
-            }
+                closeEditPopover();
+            };
 
-            function closeEditPopover(wasCanceled) {
-                if (wasCanceled && currentEditingPersonId) {
-                    const person = personnel.find(p => p.id === currentEditingPersonId);
-                    if (person) {
-                        // Si se cancela desde el estado rojo, se revierte a gris
-                        if (redCategories.some(cat => cat.value === person.status)) {
-                            person.status = grayStatus;
-                            savePersonnelData();
-                            renderPersonnelGrid();
-                        }
-                    }
-                }
-                editStatusPopover.classList.remove('visible');
-                currentEditingPersonId = null;
-            }
-
-            function savePopoverChanges() {
-                if (currentEditingPersonId) {
-                    const personToUpdate = personnel.find(p => p.id === currentEditingPersonId);
-                    if (personToUpdate) {
-                        personToUpdate.status = popoverStatusSelect.value;
-                        savePersonnelData();
-                        renderPersonnelGrid();
-                    }
-                }
-                closeEditPopover(false); // No revertir a gris si se guardó
-            }
-
-            function updateSummary() {
-                const counts = {
-                    'effectiveForce': personnel.length,
-                    'Alto mando': 0,
-                    'A bordo': 0,
-                    'En trabajos': 0,
-                    'En comisión': 0,
-                    'De baja': 0,
-                    'Con permiso': 0,
-                    'Sin motivo': 0 // Add 'Sin motivo' to counts
+            const getSummaryData = () => {
+                const data = {
+                    fuerzaEfectiva: state.personnel.length,
+                    forman: 0,
+                    conMotivo: 0,
+                    personalStaffConMotivo: 0,
+                    byCategory: {}
                 };
 
-                const personnelByCategory = {
-                    'Alto mando': [],
-                    'A bordo': [],
-                    'En trabajos': [],
-                    'En comisión': [],
-                    'De baja': [],
-                    'Con permiso': [],
-                    'Sin motivo': [] // Add 'Sin motivo' to personnelByCategory
-                };
+                config.redCategories.forEach(c => data.byCategory[c.value] = []);
 
-                personnel.forEach(person => {
-                    if (person.status === greenStatus) {
-                        counts['A bordo']++;
-                        personnelByCategory['A bordo'].push(person.name);
-                    } else if (redCategories.some(cat => cat.value === person.status)) {
-                        counts[person.status]++;
-                        personnelByCategory[person.status].push(person.name);
-                    } else if (person.status === grayStatus) {
-                        counts['Sin motivo']++;
-                        personnelByCategory['Sin motivo'].push(person.name);
+                state.personnel.forEach(p => {
+                    if (p.status === config.greenStatus) data.forman++;
+                    else if (config.redCategories.some(c => c.value === p.status)) {
+                        data.conMotivo++;
+                        data.byCategory[p.status].push(p);
+                        if(config.staffNames.includes(p.name)) {
+                            data.personalStaffConMotivo++;
+                        }
                     }
                 });
+                return data;
+            };
 
-                // Update Overall Summary Display
-                document.getElementById('overall-effective-force-count').textContent = counts.effectiveForce;
-                document.getElementById('overall-forman-count').textContent = counts['A bordo'];
-                document.getElementById('overall-con-motivo-count').textContent = redCategories.reduce((sum, cat) => sum + (counts[cat.value] || 0), 0);
-                document.getElementById('overall-sin-motivo-count').textContent = counts['Sin motivo'];
+            const updateOnScreenSummary = (data) => {
+                let html = `<div class="grid grid-cols-2 gap-x-4 gap-y-2">`;
+                html += `<div class="font-bold text-gray-700">Fuerza Efectiva:</div><div class="text-right font-semibold">${data.fuerzaEfectiva}</div>`;
+                html += `<div class="font-bold text-gray-700">Forman:</div><div class="text-right font-semibold">${data.forman}</div>`;
+                html += `<div class="font-bold text-gray-700 col-span-2 border-b pb-1 mb-1">Con Motivo: <span class="float-right font-semibold">${data.conMotivo}</span></div>`;
 
-
-                // Update Quantities by Category Display
-                document.getElementById('altomando-count-num').textContent = counts['Alto mando'];
-                document.getElementById('abordo-count-num').textContent = counts['A bordo'];
-                document.getElementById('trabajos-count-num').textContent = counts['En trabajos'];
-                document.getElementById('comision-count-num').textContent = counts['En comisión'];
-                document.getElementById('baja-count-num').textContent = counts['De baja'];
-                document.getElementById('permiso-count-num').textContent = counts['Con permiso'];
-
-                const dropdownMappings = {
-                    'Alto mando': 'altomando-dropdown',
-                    'A bordo': 'abordo-dropdown',
-                    'En trabajos': 'trabajos-dropdown',
-                    'En comisión': 'comision-dropdown',
-                    'De baja': 'baja-dropdown',
-                    'Con permiso': 'permiso-dropdown'
-                    // 'Sin motivo' is not shown in detailed dropdowns as per previous requests, but it's counted in overall
+                config.redCategories.forEach(c => {
+                     const people = data.byCategory[c.value] || [];
+                     const count = people.length;
+                     if(count > 0) {
+                         html += `<div class="font-semibold text-gray-600 col-span-2">${c.text}: <span class="float-right font-normal">${count}</span></div>`;
+                         html += `<div class="col-span-2"><ul class="summary-detail-list">`;
+                         people.forEach(p => {
+                            html += `<li>${p.name}${p.detail ? ` (${p.detail})` : ''}</li>`;
+                         });
+                         html += `</ul></div>`;
+                     }
+                });
+                html += `</div>`;
+                ui.overallSummaryDisplay.innerHTML = html;
+            };
+            
+            const prepareImageSummary = (data) => {
+                const detailsHTML = (categoryValue) => {
+                    const people = data.byCategory[categoryValue];
+                    if (!people || people.length === 0) return '<ul><li>N/A</li></ul>';
+                    return `<ul>${people.map(p => `<li>${p.name}${p.detail ? ` (${p.detail})` : ''}</li>`).join('')}</ul>`;
                 };
 
-                Object.keys(dropdownMappings).forEach(category => {
-                    const dropdown = document.getElementById(dropdownMappings[category]);
-                    const names = personnelByCategory[category];
+                const html = `
+                    <div class="img-summary-container">
+                        <div class="img-summary-title">PARTE DEPTO. FINANZAS E.M.G.A</div>
+                        <div class="img-summary-row">
+                            <div class="img-summary-label">Fuerza Efectiva</div>
+                            <div class="img-summary-box">${data.fuerzaEfectiva}</div>
+                        </div>
+                        <div class="img-summary-row">
+                            <div class="img-summary-label">Forman</div>
+                            <div class="img-summary-box">${data.forman}</div>
+                        </div>
+                        <div class="img-summary-row con-motivo-main">
+                            <div class="img-summary-label">Con Motivo</div>
+                            <div class="img-summary-box">${data.conMotivo}</div>
+                            <div class="img-summary-con-motivo">
+                                <div class="img-summary-row">
+                                    <div class="img-summary-label">Personal staff</div>
+                                    <div class="img-summary-box">${data.personalStaffConMotivo}</div>
+                                </div>
+                                <div class="img-summary-row">
+                                    <div class="img-summary-label">Baja médica</div>
+                                    <div class="img-summary-box">${data.byCategory['Baja médica']?.length || 0}</div>
+                                </div>
+                                <div class="img-summary-row">
+                                    <div class="img-summary-label">Permiso</div>
+                                    <div class="img-summary-box">${data.byCategory['Con permiso']?.length || 0}</div>
+                                </div>
+                                <div class="img-summary-row">
+                                    <div class="img-summary-label">Trabajos</div>
+                                    <div class="img-summary-details-box">${detailsHTML('En trabajos')}</div>
+                                </div>
+                                <div class="img-summary-row">
+                                    <div class="img-summary-label">Comisión</div>
+                                    <div class="img-summary-details-box">${detailsHTML('En comisión')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                ui.summaryForImage.innerHTML = html;
+            };
 
-                    if (names.length > 0) {
-                        dropdown.innerHTML = '<ul>' + names.map(name => `<li>${name}</li>`).join('') + '</ul>';
-                        dropdown.style.display = 'block';
-                    } else {
-                        dropdown.innerHTML = '';
-                        dropdown.style.display = 'none';
-                    }
+            const downloadSummaryAsImage = () => {
+                const data = getSummaryData();
+                prepareImageSummary(data);
+                
+                setTimeout(() => {
+                    html2canvas(document.getElementById('summary-for-image'), { scale: 2.5, logging: false, useCORS: true })
+                        .then(canvas => {
+                            const link = document.createElement('a');
+                            link.download = `Resumen_Personal_EMGA_${new Date().toLocaleDateString('es-CL').replace(/\//g, '-')}.png`;
+                            link.href = canvas.toDataURL('image/png');
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        })
+                        .catch(error => {
+                            console.error('Error al generar la imagen:', error);
+                            alert('Hubo un error al generar la imagen del resumen.');
+                        });
+                }, 100);
+            };
+
+            const render = () => {
+                ui.finanzasGrid.innerHTML = '';
+                ui.staffGrid.innerHTML = '';
+                state.personnel.forEach(person => {
+                    const card = createPersonCard(person);
+                    if (config.finanzasNames.includes(person.name)) ui.finanzasGrid.appendChild(card);
+                    else if (config.staffNames.includes(person.name)) ui.staffGrid.appendChild(card);
+                    else ui.finanzasGrid.appendChild(card);
                 });
-            }
-
-            function downloadSummaryAsImage() {
-                const elementsToHideForCapture = document.querySelectorAll('#personnel-grid, .add-person-section, #download-summary-btn, .header-armada');
-                elementsToHideForCapture.forEach(el => el.classList.add('no-capture'));
-
-                const dropdowns = document.querySelectorAll('.personnel-dropdown');
-                dropdowns.forEach(dropdown => {
-                    dropdown.style.display = 'block';
-                    dropdown.style.maxHeight = 'none';
-                    dropdown.style.overflow = 'visible';
-                });
-
-                html2canvas(summaryBoxToCapture, {
-                    scale: 2,
-                    logging: false,
-                    useCORS: true
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `Resumen_Personal_EMGA_${new Date().toLocaleDateString('es-CL').replace(/\//g, '-')}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-
-                    elementsToHideForCapture.forEach(el => el.classList.remove('no-capture'));
-                    dropdowns.forEach(dropdown => {
-                        if (dropdown.innerHTML.trim() !== '') {
-                            dropdown.style.display = 'block';
-                        } else {
-                            dropdown.style.display = 'none';
-                        }
-                        dropdown.style.maxHeight = '150px';
-                        dropdown.style.overflowY = 'auto';
-                    });
-                }).catch(error => {
-                    console.error('Error al generar la imagen del resumen:', error);
-                    alert('Hubo un error al generar la imagen del resumen.');
-                    elementsToHideForCapture.forEach(el => el.classList.remove('no-capture'));
-                    const dropdowns = document.querySelectorAll('.personnel-dropdown');
-                    dropdowns.forEach(dropdown => {
-                        if (dropdown.innerHTML.trim() !== '') {
-                            dropdown.style.display = 'block';
-                        } else {
-                            dropdown.style.display = 'none';
-                        }
-                        dropdown.style.maxHeight = '150px';
-                        dropdown.style.overflowY = 'auto';
-                    });
-                });
-            }
-
-            // Event listeners
-            addPersonBtn.addEventListener('click', addPerson);
-            newPersonNameInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addPerson();
-                }
-            });
-            downloadSummaryBtn.addEventListener('click', downloadSummaryAsImage);
-
-            // Popover event listeners
-            popoverCloseBtn.addEventListener('click', () => closeEditPopover(true)); // Pasar true para indicar que fue cancelado
-            popoverCancelBtn.addEventListener('click', () => closeEditPopover(true)); // Pasar true para indicar que fue cancelado
-            popoverSaveBtn.addEventListener('click', savePopoverChanges);
-            editStatusPopover.addEventListener('click', (e) => {
-                if (e.target === editStatusPopover) {
-                    closeEditPopover(true); // Pasar true para indicar que fue cancelado
-                }
-            });
-
-            // Inicialización
-            populatePopoverRedCategories();
-            loadPersonnelData();
-            loadLastUpdatedTime();
+                const summaryData = getSummaryData();
+                updateOnScreenSummary(summaryData);
+            };
+            
+            // Event Listeners
+            ui.addPersonBtn.addEventListener('click', addPerson);
+            ui.newPersonNameInput.addEventListener('keypress', e => e.key === 'Enter' && addPerson());
+            ui.downloadSummaryBtn.addEventListener('click', downloadSummaryAsImage);
+            ui.popoverCloseBtn.addEventListener('click', closeEditPopover);
+            ui.popoverCancelBtn.addEventListener('click', closeEditPopover);
+            ui.popoverSaveBtn.addEventListener('click', savePopoverChanges);
+            ui.popoverStatusSelect.addEventListener('change', handlePopoverDetailVisibility);
+            
+            // Initialization
+            loadState();
+            updateLastUpdatedTime();
+            setInterval(updateLastUpdatedTime, 60000);
         });
     </script>
 </body>
