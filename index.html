@@ -135,7 +135,6 @@
         .summary-box { background-color: #e6f0f9; border: 1px solid #b3d1f1; border-radius: 8px; padding: 1.5rem; margin-top: 2rem; }
         .summary-detail-list { list-style-position: inside; padding-left: 1.5rem; font-size: 0.9rem; color: #4a5568; }
 
-        /* Styles for the image summary (corrected for reliable capture) */
         #summary-for-image-wrapper {
             position: absolute;
             top: 0;
@@ -195,7 +194,6 @@
             position: relative;
             margin-left: 40px;
         }
-        /* Creating the connector lines */
         .img-summary-row.con-motivo-main > .img-summary-label::after {
             content: '';
             position: absolute;
@@ -279,7 +277,7 @@
                 <select id="popover-status-select"></select>
             </div>
             <div class="form-group" id="popover-detail-group">
-                <label for="popover-detail-input">Detalle:</label>
+                <label for="popover-detail-input">Detalle / Observación:</label>
                 <input type="text" id="popover-detail-input" placeholder="Ej: Comisión a Valparaíso">
             </div>
             <div class="button-group">
@@ -317,18 +315,19 @@
             };
 
             const config = {
-                personnelDataKey: 'personnelDataEmga2025-v5',
-                lastUpdatedKey: 'lastUpdatedEmga2025-v5',
+                personnelDataKey: 'personnelDataEmga2025-v6',
+                lastUpdatedKey: 'lastUpdatedEmga2025-v6',
                 finanzasNames: ['T1 ANDRÉS VARAS', 'PAC RAÚL DÍAZ', 'SO GERMÁN CASTRO', 'SO JUAN MUÑOZ', 'S1 CARLOS ALARCÓN', 'S1 JORGE ESPINOZA', 'S1 CARLOS JIMÉNEZ', 'S2 GABRIEL CLAVERÍA', 'C1 JONATAN MORAGA', 'C1 SAMI DONOSO', 'TT PEDRO VERDUGO'],
                 staffNames: ['SO RICARDO CARIPÁN', 'SO ALFONSO ESPINOZA', 'S1 ROBERTO ALEGRÍA', 'S1 MARCO ERAZO', 'S2 JOSUÉ RAÍN'],
                 categories: [
                     { value: 'A bordo', text: 'A bordo', type: 'green' },
                     { value: 'Sin motivo', text: 'Sin motivo', type: 'gray' },
+                    { value: 'Guardia', text: 'Guardia', type: 'red' },
+                    { value: 'De baja', text: 'De baja', type: 'red', needsDetail: true },
                     { value: 'En comisión', text: 'Comisión', type: 'red', needsDetail: true },
-                    { value: 'En trabajos', text: 'Trabajos', type: 'red', needsDetail: true },
-                    { value: 'Baja médica', text: 'Baja médica', type: 'red' },
                     { value: 'Con permiso', text: 'Permiso', type: 'red' },
                     { value: 'Alto mando', text: 'Alto mando', type: 'red' },
+                    { value: 'En trabajos', text: 'Trabajos', type: 'red', needsDetail: true },
                 ],
                 greenStatus: 'A bordo',
                 grayStatus: 'Sin motivo',
@@ -520,6 +519,23 @@
                     return `<ul>${people.map(p => `<li>${p.name}${p.detail ? ` (${p.detail})` : ''}</li>`).join('')}</ul>`;
                 };
 
+                const categoryRowsHTML = config.redCategories.map(cat => {
+                    const people = data.byCategory[cat.value] || [];
+                    if (cat.needsDetail) {
+                        return `
+                        <div class="img-summary-row">
+                            <div class="img-summary-label">${cat.text}</div>
+                            <div class="img-summary-details-box">${detailsHTML(cat.value)}</div>
+                        </div>`;
+                    } else {
+                        return `
+                        <div class="img-summary-row">
+                            <div class="img-summary-label">${cat.text}</div>
+                            <div class="img-summary-box">${people.length}</div>
+                        </div>`;
+                    }
+                }).join('');
+
                 const html = `
                     <div class="img-summary-container">
                         <div class="img-summary-title">PARTE DEPTO. FINANZAS E.M.G.A</div>
@@ -539,22 +555,7 @@
                                     <div class="img-summary-label">Personal staff</div>
                                     <div class="img-summary-box">${data.personalStaffConMotivo}</div>
                                 </div>
-                                <div class="img-summary-row">
-                                    <div class="img-summary-label">Baja médica</div>
-                                    <div class="img-summary-box">${data.byCategory['Baja médica']?.length || 0}</div>
-                                </div>
-                                <div class="img-summary-row">
-                                    <div class="img-summary-label">Permiso</div>
-                                    <div class="img-summary-box">${data.byCategory['Con permiso']?.length || 0}</div>
-                                </div>
-                                <div class="img-summary-row">
-                                    <div class="img-summary-label">Trabajos</div>
-                                    <div class="img-summary-details-box">${detailsHTML('En trabajos')}</div>
-                                </div>
-                                <div class="img-summary-row">
-                                    <div class="img-summary-label">Comisión</div>
-                                    <div class="img-summary-details-box">${detailsHTML('En comisión')}</div>
-                                </div>
+                                ${categoryRowsHTML}
                             </div>
                         </div>
                     </div>`;
@@ -612,3 +613,5 @@
     </script>
 </body>
 </html>
+
+
