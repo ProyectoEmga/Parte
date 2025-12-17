@@ -248,12 +248,9 @@
             
             <!-- VISTA 1: Lista de Botones -->
             <div id="modal-view-list" class="p-4 grid grid-cols-1 gap-2">
-                <!-- Estados Simples -->
+                <!-- Estados Simples (Sin Detalle) -->
                 <button type="button" onclick="applySimpleStatus('De guardia')" class="flex items-center p-3 rounded-lg border border-red-100 bg-red-50 text-red-800 font-bold hover:bg-red-100 active:bg-red-200 transition">
                     <i class="fas fa-shield-alt w-8 text-center text-red-600"></i> DE GUARDIA
-                </button>
-                <button type="button" onclick="applySimpleStatus('En trabajos')" class="flex items-center p-3 rounded-lg border border-red-100 bg-red-50 text-red-800 font-bold hover:bg-red-100 active:bg-red-200 transition">
-                    <i class="fas fa-tools w-8 text-center text-red-600"></i> EN TRABAJOS
                 </button>
                 <button type="button" onclick="applySimpleStatus('Con permiso')" class="flex items-center p-3 rounded-lg border border-red-100 bg-red-50 text-red-800 font-bold hover:bg-red-100 active:bg-red-200 transition">
                     <i class="fas fa-home w-8 text-center text-red-600"></i> CON PERMISO
@@ -261,7 +258,10 @@
                 
                 <div class="border-t my-1"></div>
                 
-                <!-- Estados con Detalle -->
+                <!-- Estados con Detalle (Ahora incluye En Trabajos) -->
+                <button type="button" onclick="showDetailInput('En trabajos')" class="flex items-center p-3 rounded-lg border border-red-100 bg-red-50 text-red-800 font-bold hover:bg-red-100 active:bg-red-200 transition">
+                    <i class="fas fa-tools w-8 text-center text-red-600"></i> EN TRABAJOS <span class="text-xs ml-auto bg-red-200 text-red-800 px-2 py-0.5 rounded">Detalle</span>
+                </button>
                 <button type="button" onclick="showDetailInput('En comisión')" class="flex items-center p-3 rounded-lg border border-red-100 bg-red-50 text-red-800 font-bold hover:bg-red-100 active:bg-red-200 transition">
                     <i class="fas fa-briefcase w-8 text-center text-red-600"></i> EN COMISIÓN <span class="text-xs ml-auto bg-red-200 text-red-800 px-2 py-0.5 rounded">Detalle</span>
                 </button>
@@ -300,6 +300,7 @@
             { group: "FINANZAS", name: "S2 G. CLAVERÍA" },
             { group: "FINANZAS", name: "C1 F. PIETRANTONI" },
             { group: "FINANZAS", name: "C1 S. DONOSO" },
+            { group: "FINANZAS", name: "TT P. VERDUGO" }, // Agregado
             { group: "MOVILIZACIÓN", name: "S1 J. ESPINOZA" },
             { group: "MOVILIZACIÓN", name: "S1 C. JIMÉNEZ" },
             { group: "MOVILIZACIÓN", name: "C1 J. MORAGA" },
@@ -321,9 +322,23 @@
 
         // --- Datos y Persistencia ---
         function loadData() {
-            const stored = localStorage.getItem('emga_db_2025_v13'); 
+            const stored = localStorage.getItem('emga_db_2025_v14'); 
             if (stored) {
                 personnel = JSON.parse(stored);
+                // Migración: Asegurarnos que TT P. Verdugo esté si no existe (al cargar datos viejos)
+                const exists = personnel.some(p => p.name === "TT P. VERDUGO");
+                if (!exists) {
+                    const financeIndex = personnel.findIndex(p => p.name === "C1 S. DONOSO");
+                    if (financeIndex !== -1) {
+                        personnel.splice(financeIndex + 1, 0, {
+                            id: Math.random().toString(36).substr(2, 9),
+                            group: "FINANZAS",
+                            name: "TT P. VERDUGO",
+                            status: "",
+                            detail: ""
+                        });
+                    }
+                }
             } else {
                 personnel = INITIAL_DB.map(p => ({
                     id: Math.random().toString(36).substr(2, 9),
@@ -337,7 +352,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('emga_db_2025_v13', JSON.stringify(personnel));
+            localStorage.setItem('emga_db_2025_v14', JSON.stringify(personnel));
             updateTimestamp();
             showSaveIndicator();
         }
@@ -378,12 +393,9 @@
         function openRedModal(id, name) {
             editingPersonId = id;
             document.getElementById('modal-person-name').innerText = name;
-            
-            // Reset vista
             document.getElementById('modal-view-list').classList.remove('hidden');
             document.getElementById('modal-view-detail').classList.add('hidden');
             document.getElementById('modal-subtitle').innerText = "Seleccione motivo de inasistencia";
-            
             document.getElementById('red-status-modal').classList.remove('hidden');
         }
 
@@ -411,10 +423,8 @@
             pendingStatusName = status;
             document.getElementById('modal-view-list').classList.add('hidden');
             document.getElementById('modal-view-detail').classList.remove('hidden');
-            
             document.getElementById('detail-title-status').innerText = status;
             document.getElementById('modal-subtitle').innerText = "Ingrese información adicional";
-            
             const input = document.getElementById('status-detail-input');
             input.value = "";
             setTimeout(() => input.focus(), 100);
@@ -570,7 +580,7 @@
                 motiveGroups[p.status].push(p);
             });
 
-            // Orden Solicitado
+            // Orden Prioritario
             const order = ["De guardia", "Licencia", "En comisión", "Con permiso", "En trabajos"];
             const keys = order.filter(k => motiveGroups[k]).concat(
                 Object.keys(motiveGroups).filter(k => !order.includes(k))
